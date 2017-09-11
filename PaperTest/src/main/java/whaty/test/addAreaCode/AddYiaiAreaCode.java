@@ -49,7 +49,7 @@ public class AddYiaiAreaCode {
 				} else {
 					// 选出最后一个编码数字的最大值
 					int lastSerial = 0;
-					int idx = levelCode.lastIndexOf("_");
+					int idx = levelCode.lastIndexOf("/");
 					if (idx >= 0) {
 						lastSerial = Integer.valueOf(levelCode.substring(idx + 1));
 					} else { // 只有数字，说明是顶层
@@ -66,7 +66,7 @@ public class AddYiaiAreaCode {
 			// 遍历没有层级编码的子节点，生成层级编码
 			for (int i = 0; i < childCodeNoCodeList.size(); i++) {
 				AreaCode curAreaCode = childCodeNoCodeList.get(i);
-				curAreaCode.setLevelCode(areaCode.getLevelCode() + "_" + (startSerial + i));
+				curAreaCode.setLevelCode(areaCode.getLevelCode() + "/" + (startSerial + i));
 			}
 			// 将刚刚生成层级编码的节点加入到输出队列
 			result.addAll(childCodeNoCodeList);
@@ -139,7 +139,7 @@ public class AddYiaiAreaCode {
 	}
 	
 	public static void main(String[] args) {
-		String path = "E:/myJava/yiaiSql/20170802/updateAreaCode.sql";
+		String path = "E:/myJava/yiaiSql/20170822/updateAreaCode.sql";
 		AddYiaiAreaCode addYiaiAreaCode = new AddYiaiAreaCode();
 		addYiaiAreaCode.outputUpdateSql(path);
 		System.exit(0);

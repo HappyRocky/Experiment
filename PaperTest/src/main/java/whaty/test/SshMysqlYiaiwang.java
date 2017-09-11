@@ -19,13 +19,13 @@ import com.jcraft.jsch.Session;
  */
 @SuppressWarnings("all")
 public class SshMysqlYiaiwang {
-	static int lport = 3308;                  //本地端口  映射到本地的端口
+	static int lport = 3307;                  //本地端口  映射到本地的端口
 	static String host = "119.254.4.60";    //远程MySQL服务器  
 	static int rport = 3306;                 //远程MySQL服务端口 
 	
 	static String sshhost = "210.14.140.85";  //远程服务器地址
-	static String sshusername = "webtrn";       //服务器用户名
-	static String sshPassword = "0DgFa1AVbB"; //服务器密码
+	static String sshusername = "readonly";       //服务器用户名
+	static String sshPassword = "Y5TK4GScIv"; //服务器密码
 	static int sshport = 22;
 	public static Connection conn = null;
 	
