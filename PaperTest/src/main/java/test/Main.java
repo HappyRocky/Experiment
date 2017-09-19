@@ -1,5 +1,8 @@
 package test;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import utils.FileUtils;
 
 
@@ -11,7 +14,11 @@ import utils.FileUtils;
  */
 public class Main {
 	public static void main(String[] args) throws Exception {
-		System.out.println("asdf#''#\\'".replaceAll("#", "\\\\#"));
+		Map<String, String> paramsMap = new HashMap<String, String>();
+		paramsMap.put("srcExambatch", "1");
+		paramsMap.put("targetExambatch", "2");
+		paramsMap.put("token", "3");		
+		System.out.println("" + paramsMap.toString());
 		System.exit(0);
 	}
 }

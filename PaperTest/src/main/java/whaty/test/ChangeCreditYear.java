@@ -131,18 +131,18 @@ public class ChangeCreditYear {
 				}
 			}
 		}
-		String path1 = "E:/myJava/yiaiSql/20170704/updatePca_" + year + ".sql";
+		String path1 = "E:/myJava/yiaiSql/20170912/updatePca_" + year + ".sql";
 		MyUtils.outputList(updatePca, path1);
 		System.out.println(periodStart + "-" + periodEnd + "的数据处理完毕，需要更新" + updateCount + "条记录");
 	}
 	
 	public static void main(String[] args) {
 		AddTraineeClassPacBefore2017 changeCreditYear = new AddTraineeClassPacBefore2017();
-//		changeCreditYear.outputChangeCreditYear("2016", "ae8a903ee1ca47929a3d1011d6cb31d0",
-//				"bc6ed0cb76744b18ba90c6d09662275f", "2016-02-15", "2017-02-04");
+		changeCreditYear.outputChangeCreditYear("2016", "ae8a903ee1ca47929a3d1011d6cb31d0",
+				"bc6ed0cb76744b18ba90c6d09662275f", "2016-02-15", "2017-02-04");
 //		changeCreditYear.outputChangeCreditYear("2015", "80b93beec1914de7831e5f71b9da4d1c",
 //				"71a546591765432e9755866eb49431d6", "2015-02-25", "2016-02-14 23:59:59");
-		changeCreditYear.outputChangeCreditYear("2014", "dfdfc4026ffe43199d52929b95643989",
-				"de76d90235814c419699ef475c8b3346", "2014-02-15", "2015-02-24");
+//		changeCreditYear.outputChangeCreditYear("2014", "dfdfc4026ffe43199d52929b95643989",
+//				"de76d90235814c419699ef475c8b3346", "2014-02-15", "2015-02-24");
 	}
 }

@@ -7,6 +7,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -117,7 +118,7 @@ public class FileUtils {
 	 * @param savePath
 	 * @throws Exception
 	 */
-	public static void download(String urlString, String filename, String savePath) throws Exception {
+	public static void download(String urlString, String filename, String savePath) throws Exception  {
 		// 构造URL
 		URL url = new URL(urlString);
 		// 打开连接

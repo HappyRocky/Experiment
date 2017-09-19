@@ -18,8 +18,8 @@ import com.jcraft.jsch.Session;
  * 使用SSH连接Mysql
  */
 @SuppressWarnings("all")
-public class SshMysqlYiaiwang {
-	static int lport = 3309;                  //本地端口  映射到本地的端口
+public class SshMysqlYiaiwangResource {
+	static int lport = 3306;                  //本地端口  映射到本地的端口
 	static String host = "119.254.4.60";    //远程MySQL服务器  
 	static int rport = 3306;                 //远程MySQL服务端口 
 	
@@ -33,6 +33,11 @@ public class SshMysqlYiaiwang {
 	static String logPath = "E:\\log.txt";
 	static List delList;
 	
+	public static void main(String[] args) {
+		String sql = "select * from study_materials limit 1";
+		System.out.println(queryBySQL(sql).get(0)[0]);
+	}
+	
 	public static synchronized Connection getConn(){
 		try {
 			if(conn != null ){
@@ -43,7 +48,7 @@ public class SshMysqlYiaiwang {
 			//2、创建连接  
 			go();
 			//映射到本地的服务
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/starbuckyiaiwang", "whatyU@123", "whatyp@132");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/resource", "whatyU@123", "whatyp@132");
 		} catch (Exception e) {
 		}
 		return conn;
@@ -151,57 +156,5 @@ public class SshMysqlYiaiwang {
 			//e.printStackTrace();
 		}
 	}
-	
-	
-
-	/**
-	 * 写入需要删除的数据
-	 */
-	public static void writeTxt(String txt,String type,String filename) {
-		try {
-			File f =null;
-			if(type.equals("log")){
-				f = new File("E:\\exam_log_"+filename+".txt");
-			}else{
-				f = new File("E:\\exam_insert_"+filename+".txt");
-			}
-			if (f.exists()) {
-			} else {
-				f.createNewFile();
-			}
-			FileWriter fw = new FileWriter(f, true);  
-	        fw.write(txt+"\n");  
-	        fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-
-	/**
-	 * 写入需要删除的数据
-	 */
-	public static void writeTxt(String txt,String type,String filename,int num) {
-		try {
-			File f =null;
-			if(type.equals("log")){
-				f = new File("E:\\log_"+filename+"_"+num+".sql");
-			}else{
-				f = new File("E:\\insert_"+filename+"_"+num+".sql");
-			}
-			if (f.exists()) {
-			} else {
-				f.createNewFile();
-			}
-			FileWriter fw = new FileWriter(f, true);  
-	        fw.write(txt+"\n");  
-	        fw.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	
 	
 }
