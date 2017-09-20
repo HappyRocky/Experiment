@@ -19,7 +19,7 @@ import com.jcraft.jsch.Session;
  */
 @SuppressWarnings("all")
 public class SshMysqlYiaiwang {
-	static int lport = 3309;                  //本地端口  映射到本地的端口
+	static int lport = 3310;                  //本地端口  映射到本地的端口
 	static String host = "119.254.4.60";    //远程MySQL服务器  
 	static int rport = 3306;                 //远程MySQL服务端口 
 	

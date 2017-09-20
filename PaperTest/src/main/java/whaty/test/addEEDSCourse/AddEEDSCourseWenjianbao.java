@@ -34,6 +34,7 @@ public class AddEEDSCourseWenjianbao {
 	private Map<String, YiaiSubject> laiyuanMap; // 来源
 	private Map<String, YiaiSubject> zhichengMap; // 职称
 	private Map<String, Expert> expertMap; // 专家
+	private List<String> exitCodeList; // 存放已经存在的courseCode，防止重复
 	private List<String> courseCodeList; // 存放已经insert的courseCode，防止重复
 	private String[] columnType = {"section", "video", "doc", "text", "resource", "courseware", "link", "homework", "topic", "test", "exam"};
 	private String[] columnName = {"章节", "视频", "文档", "图文", "下载资料", "电子课件", "链接", "作业", "主题讨论", "测试", "考试"};
@@ -57,13 +58,21 @@ public class AddEEDSCourseWenjianbao {
 				"LEFT JOIN mdl_view_materials_source MCMS ON MVCS.`scids` = MCMS.`ID`\n" +
 				"WHERE\n" +
 				"	MCC.is_cme <> 1\n" +
-				"AND MCC4.id = 3\n" +
-				"AND MVCS.scids IS NOT NULL\n" +
-				"AND MCMS.`STORAGE_PATH` LIKE '/%'";
+				
+//				"AND MCC4.id = 3\n" +
+//				"AND MVCS.scids IS NOT NULL\n" +
+//				"AND MCMS.`STORAGE_PATH` LIKE '/%'";
+		
 //				"AND (\n" +
 //				"	MCMS.`STORAGE_PATH` LIKE 'http://v.yiaiwang.com.cn%'\n" +
 //				"	OR MCMS.`STORAGE_PATH` LIKE 'http://ppt.yiaiwang.com.cn%'\n" +
 //				"	OR MCMS.`STORAGE_PATH` LIKE 'http://www.ablesky.com%' )";
+		
+//				"AND MCC4.id = 3\n" +
+//				"AND MVCS.scids IS NULL";
+
+				"AND MCC4.id = 16";
+				
 		List<Object[]> courseIdlist = SshMysqlYiaiwang.queryBySQL(sql);
 		int num = courseIdlist.size();
 		int second = num / maxSize + 1;
@@ -96,9 +105,13 @@ public class AddEEDSCourseWenjianbao {
 					"MCC.name,  MCC.id, \n" +
 					"MC.id, mc.sortorder,MC.fullname,\n" +
 					"	MVCS.scids,\n" +
-					"	expertName.`data`,\n" +
-					"	zhicheng.`data`,\n" +
-					"	danwei.`data`,\n" +
+//					"	expertName.`data`,\n" +
+//					"	zhicheng.`data`,\n" +
+//					"	danwei.`data`,\n" +
+
+					"	'',\n" +
+					"	'',\n" +
+					"	'',\n" +
 					"	q.`subject`\n" +
 					"FROM\n" +
 					"	mdl_course MC\n" +
@@ -108,20 +121,28 @@ public class AddEEDSCourseWenjianbao {
 					"LEFT JOIN mdl_course_categories MCC4 ON MCC3.parent = MCC4.id\n" +
 					"JOIN `mdl_view_course_scids` MVCS ON MVCS.course = MC.id\n" +
 					"LEFT JOIN mdl_view_materials_source MCMS ON MVCS.`scids` = MCMS.`ID`\n" +
-					"LEFT JOIN mdl_course_info_data expertName on expertName.courseid=MC.id and expertName.fieldid='4'\n" +
-					"LEFT JOIN mdl_course_info_data zhicheng on zhicheng.courseid=MC.id and zhicheng.fieldid='5'\n" +
-					"LEFT JOIN mdl_course_info_data danwei on danwei.courseid=MC.id and danwei.fieldid='6'\n" +
+//					"LEFT JOIN mdl_course_info_data expertName on expertName.courseid=MC.id and expertName.fieldid='4'\n" +
+//					"LEFT JOIN mdl_course_info_data zhicheng on zhicheng.courseid=MC.id and zhicheng.fieldid='5'\n" +
+//					"LEFT JOIN mdl_course_info_data danwei on danwei.courseid=MC.id and danwei.fieldid='6'\n" +
 					"LEFT JOIN mdl_lessonpage_quiz q on q.course_id=MC.id\n" +
 					"WHERE\n" +
 					"	MCC.is_cme <> 1\n" +
-					"AND MCC4.id = 3\n" +
-					"AND MVCS.scids IS NOT NULL\n" +
-					"AND MCMS.`STORAGE_PATH` LIKE '/%' limit " + (j * maxSize) + "," + maxSize;
+					
+//					"AND MCC4.id = 3\n" +
+//					"AND MVCS.scids IS NOT NULL\n" +
+//					"AND MCMS.`STORAGE_PATH` LIKE '/%' limit " + (j * maxSize) + "," + maxSize;
+			
 //					"AND (\n" +
 //					"	MCMS.`STORAGE_PATH` LIKE 'http://v.yiaiwang.com.cn%'\n" +
 //					"	OR MCMS.`STORAGE_PATH` LIKE 'http://ppt.yiaiwang.com.cn%'\n" +
 //					"	OR MCMS.`STORAGE_PATH` LIKE 'http://www.ablesky.com%'\n" +
 //					") limit " + (j * maxSize) + "," + maxSize;
+			
+//					"AND MCC4.id = 3\n" +
+//					"AND MVCS.scids IS NULL limit " + (j * maxSize) + "," + maxSize;
+
+					"AND MCC4.id = 16 limit " + (j * maxSize) + "," + maxSize;
+			
 			List<Object[]> list = SshMysqlYiaiwang.queryBySQL(sql);
 			for (Object[] objects : list) {
 				String name2 = MyUtils.valueOf(objects[0]);
@@ -168,62 +189,62 @@ public class AddEEDSCourseWenjianbao {
 				String zhutiCode = "";
 				String zhichengName = "";
 				String zhichengCode = "";
-				if (StringUtils.isNotBlank(scids)) {
-					sql = "SELECT\n" +
-							"	nengli.`NAME` AS nengliName,\n" +
-							"	nengli.`CODE` AS nengliCode,\n" +
-							"	laiyuan.`NAME` AS laiyuanName,\n" +
-							"	laiyuan.`CODE` AS laiyuanCode,\n" +
-							"	zhuti.`NAME` AS zhutiName,\n" +
-							"	zhuti.`CODE` AS zhutiCode,\n" +
-							"	zhicheng.`NAME` AS zhichengName,\n" +
-							"	zhicheng.`CODE` AS zhichengCODE\n" +
-							"FROM\n" +
-							"	study_materials t\n" +
-							"LEFT JOIN study_materials_cognize c ON c.MATERIALS_ID = t.id\n" +
-							"LEFT JOIN exam_prop_val nengli ON nengli.id = c.PROP_VAL_ID\n" +
-							"LEFT JOIN study_materials_source s ON s.MATERIALS_ID = t.id\n" +
-							"LEFT JOIN exam_prop_val laiyuan ON laiyuan.id = s.PROP_VAL_ID\n" +
-							"LEFT JOIN study_materials_theme theme ON theme.MATERIALS_ID = t.id\n" +
-							"LEFT JOIN exam_prop_val zhuti ON zhuti.id = theme.PROP_VAL_ID\n" +
-							"LEFT JOIN study_materials_title title ON title.MATERIALS_ID = t.id\n" +
-							"LEFT JOIN exam_prop_val zhicheng ON zhicheng.id = title.PROP_VAL_ID\n" +
-							"WHERE\n" +
-							"	t.id = '" + scids + "'";
-					List<Object[]>  sourceList = SshMysqlYiaiwangResource.queryBySQL(sql);
-					if (CollectionUtils.isEmpty(sourceList)) {
-						System.out.println("courseId=" + courseId + "没有查询到素材：" + sql);
-					} else {
-						nengliName = MyUtils.valueOf(sourceList.get(0)[0]).replaceAll("\\\\", "");
-						nengliCode = MyUtils.valueOf(sourceList.get(0)[1]);
-						laiyuanName = MyUtils.valueOf(sourceList.get(0)[2]).replaceAll("\\\\", "");
-						laiyuanCode = MyUtils.valueOf(sourceList.get(0)[3]);
-						zhutiName = MyUtils.valueOf(sourceList.get(0)[4]).replaceAll("\\\\", "");
-						zhutiCode = MyUtils.valueOf(sourceList.get(0)[5]);
-						zhichengName = MyUtils.valueOf(sourceList.get(0)[6]).replaceAll("\\\\", "");
-						zhichengCode = MyUtils.valueOf(sourceList.get(0)[7]);
-						sql = generateNengliSql(nengliName, nengliCode);
-						if (StringUtils.isNotBlank(sql)) {
-							addSubjectSqlList.add(sql);
-						}
-						sql = generateLaiyuanSql(laiyuanName, laiyuanCode);
-						if (StringUtils.isNotBlank(sql)) {
-							addSubjectSqlList.add(sql);
-						}
-						sql = generateZhutiSql(zhutiName, zhutiCode);
-						if (StringUtils.isNotBlank(sql)) {
-							addSubjectSqlList.add(sql);
-						}
-						sql = generateZhichengSql(zhichengName, zhichengCode);
-						if (StringUtils.isNotBlank(sql)) {
-							addSubjectSqlList.add(sql);
-						}
-						nengliId = nengliMap.get(nengliName).getId();
-						laiyuanId = laiyuanMap.get(laiyuanName).getId();
-						zhutiId = zhutiMap.get(zhutiName).getId();
-						zhichengId = zhichengMap.get(zhichengName).getId();
-					}
-				}
+//				if (StringUtils.isNotBlank(scids)) {
+//					sql = "SELECT\n" +
+//							"	nengli.`NAME` AS nengliName,\n" +
+//							"	nengli.`CODE` AS nengliCode,\n" +
+//							"	laiyuan.`NAME` AS laiyuanName,\n" +
+//							"	laiyuan.`CODE` AS laiyuanCode,\n" +
+//							"	zhuti.`NAME` AS zhutiName,\n" +
+//							"	zhuti.`CODE` AS zhutiCode,\n" +
+//							"	zhicheng.`NAME` AS zhichengName,\n" +
+//							"	zhicheng.`CODE` AS zhichengCODE\n" +
+//							"FROM\n" +
+//							"	study_materials t\n" +
+//							"LEFT JOIN study_materials_cognize c ON c.MATERIALS_ID = t.id\n" +
+//							"LEFT JOIN exam_prop_val nengli ON nengli.id = c.PROP_VAL_ID\n" +
+//							"LEFT JOIN study_materials_source s ON s.MATERIALS_ID = t.id\n" +
+//							"LEFT JOIN exam_prop_val laiyuan ON laiyuan.id = s.PROP_VAL_ID\n" +
+//							"LEFT JOIN study_materials_theme theme ON theme.MATERIALS_ID = t.id\n" +
+//							"LEFT JOIN exam_prop_val zhuti ON zhuti.id = theme.PROP_VAL_ID\n" +
+//							"LEFT JOIN study_materials_title title ON title.MATERIALS_ID = t.id\n" +
+//							"LEFT JOIN exam_prop_val zhicheng ON zhicheng.id = title.PROP_VAL_ID\n" +
+//							"WHERE\n" +
+//							"	t.id = '" + scids + "'";
+//					List<Object[]>  sourceList = SshMysqlYiaiwangResource.queryBySQL(sql);
+//					if (CollectionUtils.isEmpty(sourceList)) {
+//						System.out.println("courseId=" + courseId + "没有查询到素材：" + sql);
+//					} else {
+//						nengliName = MyUtils.valueOf(sourceList.get(0)[0]).replaceAll("\\\\", "");
+//						nengliCode = MyUtils.valueOf(sourceList.get(0)[1]);
+//						laiyuanName = MyUtils.valueOf(sourceList.get(0)[2]).replaceAll("\\\\", "");
+//						laiyuanCode = MyUtils.valueOf(sourceList.get(0)[3]);
+//						zhutiName = MyUtils.valueOf(sourceList.get(0)[4]).replaceAll("\\\\", "");
+//						zhutiCode = MyUtils.valueOf(sourceList.get(0)[5]);
+//						zhichengName = MyUtils.valueOf(sourceList.get(0)[6]).replaceAll("\\\\", "");
+//						zhichengCode = MyUtils.valueOf(sourceList.get(0)[7]);
+//						sql = generateNengliSql(nengliName, nengliCode);
+//						if (StringUtils.isNotBlank(sql)) {
+//							addSubjectSqlList.add(sql);
+//						}
+//						sql = generateLaiyuanSql(laiyuanName, laiyuanCode);
+//						if (StringUtils.isNotBlank(sql)) {
+//							addSubjectSqlList.add(sql);
+//						}
+//						sql = generateZhutiSql(zhutiName, zhutiCode);
+//						if (StringUtils.isNotBlank(sql)) {
+//							addSubjectSqlList.add(sql);
+//						}
+//						sql = generateZhichengSql(zhichengName, zhichengCode);
+//						if (StringUtils.isNotBlank(sql)) {
+//							addSubjectSqlList.add(sql);
+//						}
+//						nengliId = nengliMap.get(nengliName).getId();
+//						laiyuanId = laiyuanMap.get(laiyuanName).getId();
+//						zhutiId = zhutiMap.get(zhutiName).getId();
+//						zhichengId = zhichengMap.get(zhichengName).getId();
+//					}
+//				}
 				
 				// 查询专家
 				String expertId = "";
@@ -234,10 +255,9 @@ public class AddEEDSCourseWenjianbao {
 				
 				
 				// 重复验证
-				sql = "select c.ID from pe_tch_course c where c.`CODE`='" + newCode + "' and c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
-				List<Object[]> repeatList = SshMysqlWebtrn.getBySQL(sql);
-				if (CollectionUtils.isNotEmpty(repeatList)) {
-					continue;
+				if (exitCodeList.contains(newCode)) {
+				} else {
+					System.out.println("不存在此课程：" + newCode);
 				}
 				
 				// 插入至webtrn
@@ -705,6 +725,16 @@ public class AddEEDSCourseWenjianbao {
 			String name = MyUtils.valueOf(objects[1]);
 			String workPlace = MyUtils.valueOf(objects[2]);
 			expertMap.put(name + workPlace, new Expert(id, name, workPlace, null));
+		}
+		// 获取已存在的课程
+		exitCodeList = new ArrayList<>();
+		sql = "select c.`CODE` from pe_tch_course c where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
+		list = SshMysqlWebtrn.getBySQL(sql);
+		for (Object[] objects : list) {
+			String code = MyUtils.valueOf(objects[0]);
+			if (StringUtils.isNotBlank(code)) {
+				exitCodeList.add(code);
+			}
 		}
 	}
 	
