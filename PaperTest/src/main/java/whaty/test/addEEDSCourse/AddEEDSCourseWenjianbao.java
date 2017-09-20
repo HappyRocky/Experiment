@@ -36,6 +36,7 @@ public class AddEEDSCourseWenjianbao {
 	private Map<String, Expert> expertMap; // 专家
 	private List<String> exitCodeList; // 存放已经存在的courseCode，防止重复
 	private List<String> courseCodeList; // 存放已经insert的courseCode，防止重复
+	private Map<String, String> subjectCodeIdMap; // 已经存在的5级学科的code和id
 	private String[] columnType = {"section", "video", "doc", "text", "resource", "courseware", "link", "homework", "topic", "test", "exam"};
 	private String[] columnName = {"章节", "视频", "文档", "图文", "下载资料", "电子课件", "链接", "作业", "主题讨论", "测试", "考试"};
 	public final static String IMG_PATH = "http://yiai.learn.webtrn.cn:80/learnspace/incoming/editor/yiai/upload/image/";
@@ -59,19 +60,19 @@ public class AddEEDSCourseWenjianbao {
 				"WHERE\n" +
 				"	MCC.is_cme <> 1\n" +
 				
-//				"AND MCC4.id = 3\n" +
-//				"AND MVCS.scids IS NOT NULL\n" +
+				"AND MCC4.id = 3\n" +
+				"AND MVCS.scids IS NOT NULL\n" +
 //				"AND MCMS.`STORAGE_PATH` LIKE '/%'";
 		
-//				"AND (\n" +
-//				"	MCMS.`STORAGE_PATH` LIKE 'http://v.yiaiwang.com.cn%'\n" +
-//				"	OR MCMS.`STORAGE_PATH` LIKE 'http://ppt.yiaiwang.com.cn%'\n" +
-//				"	OR MCMS.`STORAGE_PATH` LIKE 'http://www.ablesky.com%' )";
+				"AND (\n" +
+				"	MCMS.`STORAGE_PATH` LIKE 'http://v.yiaiwang.com.cn%'\n" +
+				"	OR MCMS.`STORAGE_PATH` LIKE 'http://ppt.yiaiwang.com.cn%'\n" +
+				"	OR MCMS.`STORAGE_PATH` LIKE 'http://www.ablesky.com%' )";
 		
 //				"AND MCC4.id = 3\n" +
 //				"AND MVCS.scids IS NULL";
 
-				"AND MCC4.id = 16";
+//				"AND MCC4.id = 16";
 				
 		List<Object[]> courseIdlist = SshMysqlYiaiwang.queryBySQL(sql);
 		int num = courseIdlist.size();
@@ -138,10 +139,10 @@ public class AddEEDSCourseWenjianbao {
 //					"	OR MCMS.`STORAGE_PATH` LIKE 'http://www.ablesky.com%'\n" +
 //					") limit " + (j * maxSize) + "," + maxSize;
 			
-//					"AND MCC4.id = 3\n" +
-//					"AND MVCS.scids IS NULL limit " + (j * maxSize) + "," + maxSize;
+					"AND MCC4.id = 3\n" +
+					"AND MVCS.scids IS NULL and q.subject is null limit " + (j * maxSize) + "," + maxSize;
 
-					"AND MCC4.id = 16 limit " + (j * maxSize) + "," + maxSize;
+//					"AND MCC4.id = 16 limit " + (j * maxSize) + "," + maxSize;
 			
 			List<Object[]> list = SshMysqlYiaiwang.queryBySQL(sql);
 			for (Object[] objects : list) {
@@ -171,10 +172,20 @@ public class AddEEDSCourseWenjianbao {
 				
 				// 检验学科是否存在，插入新学科
 				if (!subjectMap.containsKey(name2)) {
-					name2 = "其他";
-					id2 = subjectMap.get(name2).getId();
+					name2 = name3;
+					id2 = id3;
+					name3 = name4;
+					id3 = id4;
+					name4 = "其他";
+					id4 = MyUtils.uuid();
+					name5 = "其他";
+					id5 = MyUtils.uuid();
 				}
-				addSubjectSqlList.addAll(generateAddSubjectSql(name2, id2, name3, id3, name4, id4, name5, id5));
+				
+				List<Object> obs = generateAddSubjectSql(name2, id2, name3, id3, name4, id4, name5, id5);
+				addSubjectSqlList.addAll((List<String>)obs.get(0));
+				YiaiSubject sub5 = (YiaiSubject)obs.get(1);
+				
 				
 				// 查询能力来源
 				String nengliId = "";
@@ -189,62 +200,74 @@ public class AddEEDSCourseWenjianbao {
 				String zhutiCode = "";
 				String zhichengName = "";
 				String zhichengCode = "";
-//				if (StringUtils.isNotBlank(scids)) {
-//					sql = "SELECT\n" +
-//							"	nengli.`NAME` AS nengliName,\n" +
-//							"	nengli.`CODE` AS nengliCode,\n" +
-//							"	laiyuan.`NAME` AS laiyuanName,\n" +
-//							"	laiyuan.`CODE` AS laiyuanCode,\n" +
-//							"	zhuti.`NAME` AS zhutiName,\n" +
-//							"	zhuti.`CODE` AS zhutiCode,\n" +
-//							"	zhicheng.`NAME` AS zhichengName,\n" +
-//							"	zhicheng.`CODE` AS zhichengCODE\n" +
-//							"FROM\n" +
-//							"	study_materials t\n" +
-//							"LEFT JOIN study_materials_cognize c ON c.MATERIALS_ID = t.id\n" +
-//							"LEFT JOIN exam_prop_val nengli ON nengli.id = c.PROP_VAL_ID\n" +
-//							"LEFT JOIN study_materials_source s ON s.MATERIALS_ID = t.id\n" +
-//							"LEFT JOIN exam_prop_val laiyuan ON laiyuan.id = s.PROP_VAL_ID\n" +
-//							"LEFT JOIN study_materials_theme theme ON theme.MATERIALS_ID = t.id\n" +
-//							"LEFT JOIN exam_prop_val zhuti ON zhuti.id = theme.PROP_VAL_ID\n" +
-//							"LEFT JOIN study_materials_title title ON title.MATERIALS_ID = t.id\n" +
-//							"LEFT JOIN exam_prop_val zhicheng ON zhicheng.id = title.PROP_VAL_ID\n" +
-//							"WHERE\n" +
-//							"	t.id = '" + scids + "'";
-//					List<Object[]>  sourceList = SshMysqlYiaiwangResource.queryBySQL(sql);
-//					if (CollectionUtils.isEmpty(sourceList)) {
-//						System.out.println("courseId=" + courseId + "没有查询到素材：" + sql);
-//					} else {
-//						nengliName = MyUtils.valueOf(sourceList.get(0)[0]).replaceAll("\\\\", "");
-//						nengliCode = MyUtils.valueOf(sourceList.get(0)[1]);
-//						laiyuanName = MyUtils.valueOf(sourceList.get(0)[2]).replaceAll("\\\\", "");
-//						laiyuanCode = MyUtils.valueOf(sourceList.get(0)[3]);
-//						zhutiName = MyUtils.valueOf(sourceList.get(0)[4]).replaceAll("\\\\", "");
-//						zhutiCode = MyUtils.valueOf(sourceList.get(0)[5]);
-//						zhichengName = MyUtils.valueOf(sourceList.get(0)[6]).replaceAll("\\\\", "");
-//						zhichengCode = MyUtils.valueOf(sourceList.get(0)[7]);
-//						sql = generateNengliSql(nengliName, nengliCode);
-//						if (StringUtils.isNotBlank(sql)) {
-//							addSubjectSqlList.add(sql);
-//						}
-//						sql = generateLaiyuanSql(laiyuanName, laiyuanCode);
-//						if (StringUtils.isNotBlank(sql)) {
-//							addSubjectSqlList.add(sql);
-//						}
-//						sql = generateZhutiSql(zhutiName, zhutiCode);
-//						if (StringUtils.isNotBlank(sql)) {
-//							addSubjectSqlList.add(sql);
-//						}
-//						sql = generateZhichengSql(zhichengName, zhichengCode);
-//						if (StringUtils.isNotBlank(sql)) {
-//							addSubjectSqlList.add(sql);
-//						}
-//						nengliId = nengliMap.get(nengliName).getId();
-//						laiyuanId = laiyuanMap.get(laiyuanName).getId();
-//						zhutiId = zhutiMap.get(zhutiName).getId();
-//						zhichengId = zhichengMap.get(zhichengName).getId();
-//					}
-//				}
+				String subjectName = "";
+				String subjectCode = "";
+				if (StringUtils.isNotBlank(scids)) {
+					if (scids.contains(",")) {
+						System.out.println("素材id有多个：" + scids);
+						scids = scids.substring(0, scids.indexOf(","));
+					}
+					sql = "SELECT\n" +
+							"	nengli.`NAME` AS nengliName,\n" +
+							"	nengli.`CODE` AS nengliCode,\n" +
+							"	laiyuan.`NAME` AS laiyuanName,\n" +
+							"	laiyuan.`CODE` AS laiyuanCode,\n" +
+							"	zhuti.`NAME` AS zhutiName,\n" +
+							"	zhuti.`CODE` AS zhutiCode,\n" +
+							"	zhicheng.`NAME` AS zhichengName,\n" +
+							"	zhicheng.`CODE` AS zhichengCODE,\n" +
+							"	subject.`NAME` AS subjectName,\n" +
+							"	subject.`CODE` AS subjectCODE\n" +
+							"FROM\n" +
+							"	study_materials t\n" +
+							"LEFT JOIN study_materials_cognize c ON c.MATERIALS_ID = t.id\n" +
+							"LEFT JOIN exam_prop_val nengli ON nengli.id = c.PROP_VAL_ID\n" +
+							"LEFT JOIN study_materials_source s ON s.MATERIALS_ID = t.id\n" +
+							"LEFT JOIN exam_prop_val laiyuan ON laiyuan.id = s.PROP_VAL_ID\n" +
+							"LEFT JOIN study_materials_theme theme ON theme.MATERIALS_ID = t.id\n" +
+							"LEFT JOIN exam_prop_val zhuti ON zhuti.id = theme.PROP_VAL_ID\n" +
+							"LEFT JOIN study_materials_title title ON title.MATERIALS_ID = t.id\n" +
+							"LEFT JOIN exam_prop_val zhicheng ON zhicheng.id = title.PROP_VAL_ID\n" +
+							"LEFT JOIN study_materials_point point ON point.MATERIALS_ID = t.id\n" +
+							"LEFT JOIN exam_prop_val subject ON subject.id = point.PROP_VAL_ID\n" +
+							"WHERE\n" +
+							"	t.id = '" + scids + "'";
+					List<Object[]>  sourceList = SshMysqlYiaiwangResource.queryBySQL(sql);
+					if (CollectionUtils.isEmpty(sourceList)) {
+						System.out.println("courseId=" + courseId + "没有查询到素材：" + sql);
+					} else {
+						nengliName = MyUtils.valueOf(sourceList.get(0)[0]).replaceAll("\\\\", "");
+						nengliCode = MyUtils.valueOf(sourceList.get(0)[1]);
+						laiyuanName = MyUtils.valueOf(sourceList.get(0)[2]).replaceAll("\\\\", "");
+						laiyuanCode = MyUtils.valueOf(sourceList.get(0)[3]);
+						zhutiName = MyUtils.valueOf(sourceList.get(0)[4]).replaceAll("\\\\", "");
+						zhutiCode = MyUtils.valueOf(sourceList.get(0)[5]);
+						zhichengName = MyUtils.valueOf(sourceList.get(0)[6]).replaceAll("\\\\", "");
+						zhichengCode = MyUtils.valueOf(sourceList.get(0)[7]);
+						subjectName = MyUtils.valueOf(sourceList.get(0)[8]).replaceAll("\\\\", "");
+						subjectCode = MyUtils.valueOf(sourceList.get(0)[9]);
+						sql = generateNengliSql(nengliName, nengliCode);
+						if (StringUtils.isNotBlank(sql)) {
+							addSubjectSqlList.add(sql);
+						}
+						sql = generateLaiyuanSql(laiyuanName, laiyuanCode);
+						if (StringUtils.isNotBlank(sql)) {
+							addSubjectSqlList.add(sql);
+						}
+						sql = generateZhutiSql(zhutiName, zhutiCode);
+						if (StringUtils.isNotBlank(sql)) {
+							addSubjectSqlList.add(sql);
+						}
+						sql = generateZhichengSql(zhichengName, zhichengCode);
+						if (StringUtils.isNotBlank(sql)) {
+							addSubjectSqlList.add(sql);
+						}
+						nengliId = nengliMap.get(nengliName).getId();
+						laiyuanId = laiyuanMap.get(laiyuanName).getId();
+						zhutiId = zhutiMap.get(zhutiName).getId();
+						zhichengId = zhichengMap.get(zhichengName).getId();
+					}
+				}
 				
 				// 查询专家
 				String expertId = "";
@@ -262,10 +285,11 @@ public class AddEEDSCourseWenjianbao {
 				
 				// 插入至webtrn
 				String newId = MyUtils.uuid();
-				YiaiSubject sub5 = subjectMap.get(name2).getChildrenMap().get(name3).getChildrenMap().get(name4).getChildrenMap().get(name5);
+//				YiaiSubject sub5 = subjectMap.get(name2).getChildrenMap().get(name3).getChildrenMap().get(name4).getChildrenMap().get(name5);
 				String subjectId = sub5.getId();
 				String subCode = sub5.getCode();
 				// 查询素材
+				
 				if (StringUtils.isNotBlank(scidss)) {
 					scidss = scidss.replaceAll("\\[", "").replaceAll("\\]", "").replaceAll("\"", "");
 					if (scidss.endsWith(",")) {
@@ -281,11 +305,9 @@ public class AddEEDSCourseWenjianbao {
 							String scType = MyUtils.valueOf(objs[1]);
 							String scCode = MyUtils.valueOf(objs[3]);
 							if (scType.equals("5")) {
-								String sql2 = "select id from pe_subject where `code`='" + scCode + "' and fk_site_id='ff80808155da5b850155dddbec9404c9'";
-								List<Object[]>  subList = SshMysqlWebtrn.queryBySQL(sql2);
-								if (CollectionUtils.isNotEmpty(subList)) {
+								if (subjectCodeIdMap.containsKey(scCode)) {
 									subCode = scCode;
-									subjectId = subList.get(0)[0].toString();
+									subjectId = subjectCodeIdMap.get(scCode);
 								}
 							} 
 						}
@@ -293,8 +315,16 @@ public class AddEEDSCourseWenjianbao {
 				}
 				
 				if (subCode.startsWith("lv5-")) {
-					continue;
+					if (StringUtils.isNotBlank(subjectCode)) {
+						if (subjectCodeIdMap.containsKey(subjectCode)) {
+							subCode = subjectCode;
+							subjectId = subjectCodeIdMap.get(subCode);
+						}
+					}
 				}
+//				if (!subCode.startsWith("lv5-")) {
+//					continue;
+//				}
 				
 				sql = "INSERT INTO `pe_tch_course` ( " +
 						"	`ID`, " +
@@ -494,40 +524,69 @@ public class AddEEDSCourseWenjianbao {
 	 * @param name5
 	 * @param id5
 	 */
-	public List<String> generateAddSubjectSql(String name2, String id2, String name3, String id3, String name4, String id4, String name5, String id5){
+	public List<Object> generateAddSubjectSql(String name2, String id2, String name3, String id3, String name4, String id4, String name5, String id5){
+		List<Object> result = new ArrayList<>();
 		List<String> addSubjectSqlList = new ArrayList<>();
 		// 添加二级
 		if (!subjectMap.containsKey(name2)) {
+			System.out.println("没有二级学科：" + name2);
 			name2 = "其他";
 		}
 		// 添加三级
 		String parentId = subjectMap.get(name2).getId();
 		Map<String, YiaiSubject> map = subjectMap.get(name2).getChildrenMap();
 		if (!map.containsKey(name3)) {
-			String id = MyUtils.uuid();
-			YiaiSubject subject = new YiaiSubject(id, name3, 3, "lv3-" + id3 + "-" + id3, parentId, new HashMap<String, YiaiSubject>());
-			map.put(name3, subject);
-			addSubjectSqlList.add(addSubject(subject));
+			name3 = "其他";
+			for (String key : map.keySet()) {
+				if (key.contains(name3)) {
+					name3 = key;
+					break;
+				}
+			}
+			if (!map.containsKey(name3)) {
+				String id = MyUtils.uuid();
+				YiaiSubject subject = new YiaiSubject(id, name3, 3, "lv3-" + id, parentId, new HashMap<String, YiaiSubject>());
+				map.put(name3, subject);
+				addSubjectSqlList.add(addSubject(subject));
+			}
+			
 		}
 		// 添加四级
 		parentId = map.get(name3).getId();
 		map = map.get(name3).getChildrenMap();
 		if (!map.containsKey(name4)) {
-			String id = MyUtils.uuid();
-			YiaiSubject subject = new YiaiSubject(id, name4, 4, "lv4-" + id4 + "-" + id4, parentId, new HashMap<String, YiaiSubject>());
-			map.put(name4, subject);
-			addSubjectSqlList.add(addSubject(subject));
+			for (String key : map.keySet()) {
+				if (key.contains(name4)) {
+					name4 = key;
+					break;
+				}
+			}
+			if (!map.containsKey(name4)) {
+				String id = MyUtils.uuid();
+				YiaiSubject subject = new YiaiSubject(id, name4, 4, "lv4-" + id, parentId, new HashMap<String, YiaiSubject>());
+				map.put(name4, subject);
+				addSubjectSqlList.add(addSubject(subject));
+			}
 		}
 		// 添加五级
 		parentId = map.get(name4).getId();
 		map = map.get(name4).getChildrenMap();
 		if (!map.containsKey(name5)) {
+			for (String key : map.keySet()) {
+				if (key.contains(name5)) {
+					name5 = key;
+					break;
+				}
+			}
 			String id = MyUtils.uuid();
-			YiaiSubject subject = new YiaiSubject(id, name5, 5, "lv5-" + id5 + "-" + id5, parentId, new HashMap<String, YiaiSubject>());
+			YiaiSubject subject = new YiaiSubject(id, name5, 5, "lv5-" + id, parentId, new HashMap<String, YiaiSubject>());
 			map.put(name5, subject);
 			addSubjectSqlList.add(addSubject(subject));
 		}
-		return addSubjectSqlList;
+		YiaiSubject subject5 = subjectMap.get(name2).getChildrenMap().get(name3).getChildrenMap().get(name4).getChildrenMap().get(name5);
+		result.add(addSubjectSqlList);
+		result.add(subject5);
+		return result;
 	}
 	
 	
@@ -736,6 +795,16 @@ public class AddEEDSCourseWenjianbao {
 				exitCodeList.add(code);
 			}
 		}
+		// 获取新平台的5级学科
+		subjectCodeIdMap = new HashMap<>();
+		sql = "select s.`code`,s.id from pe_subject s where s.`level`='5' and s.fk_site_id='ff80808155da5b850155dddbec9404c9';";
+		list = SshMysqlWebtrn.getBySQL(sql);
+		for (Object[] objects : list) {
+			String code = MyUtils.valueOf(objects[0]);
+			String id = MyUtils.valueOf(objects[1]);
+			subjectCodeIdMap.put(code, id);
+		}
+		
 	}
 	
 	/**

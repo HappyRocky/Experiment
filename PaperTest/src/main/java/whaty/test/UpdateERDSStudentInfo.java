@@ -59,7 +59,7 @@ public class UpdateERDSStudentInfo {
 		}
 		// 得到所有鄂尔多斯学员的用户名
 		loginIdMap = new HashMap<String, String>();
-		sql = "select id,LOGIN_ID from pe_trainee where (LOGIN_ID like 'erds2017@%' ) and FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
+		sql = "select id,LOGIN_ID from pe_trainee where (LOGIN_ID like 'erds@%' ) and FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		List<Object[]> loginList = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : loginList) {
 			loginIdMap.put(objects[1].toString(), objects[0].toString());
@@ -95,7 +95,7 @@ public class UpdateERDSStudentInfo {
 		List<String> addHospitalList = new ArrayList<>();
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2.xls";
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗人民医院北大医学网花名册2-1.xls";
-		String path = "F:/whaty/医爱数据库迁移/remainERDS.xls";
+		String path = "F:/whaty/医爱数据库迁移/2-准格尔旗2017/2-准格尔旗2017/2-准格尔旗继教补报名单.xls";
 		List<String[]> lineList = MyUtils.readExcel(path);
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] strs = lineList.get(i);
@@ -105,7 +105,7 @@ public class UpdateERDSStudentInfo {
 			String title = MyUtils.valueOf(strs[6]).trim().replaceAll(" ", "").replaceAll("　", "");
 			String education = MyUtils.valueOf(strs[7]).trim().replaceAll(" ", "").replaceAll("　", "");
 			String major = MyUtils.valueOf(strs[8]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String county = "达拉特旗";
+			String county = "准格尔旗";
 			
 			if (StringUtils.isBlank(loginId)) {
 				continue;

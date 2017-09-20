@@ -245,6 +245,15 @@ public class MyUtils {
 	 * @return
 	 */
 	public static List<String[]> readExcel(String path) {
+		return readExcel(path, 1);
+	}
+	
+	/**
+	 * 读取excel内容
+	 * @param path
+	 * @return
+	 */
+	public static List<String[]> readExcel(String path, int sheetIdx) {
 		List<String[]> resultList = new ArrayList<>();
 		try {
 			// 创建输入流
@@ -252,7 +261,7 @@ public class MyUtils {
 			// 获取Excel文件对象
 			Workbook rwb = Workbook.getWorkbook(stream);
 			// 获取文件的指定工作表 默认的第一个
-			Sheet sheet = rwb.getSheet(0);
+			Sheet sheet = rwb.getSheet(sheetIdx - 1);
 			// 行数(表头的目录不需要，从1开始)
 			for (int i = 1; i < sheet.getRows(); i++) {
 				// 创建一个数组 用来存储每一列的值
