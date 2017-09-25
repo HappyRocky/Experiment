@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -17,7 +18,7 @@ import whaty.test.SshMysqlYiaiwang;
 
 /** 
  * @className:MatchUser.java
- * @classDescription:迁移鄂尔多斯学习记录，eeds和dltq开头的
+ * @classDescription:迁移鄂尔多斯学习记录，eeds和dltq开头的，同时会输出新平台没有的课程，然后经过selectNewCourse处理，进行迁移新课程
  * @author:yourname
  * @createTime:2017年9月14日
  */
@@ -39,7 +40,7 @@ public class AddStudyRecordOld {
 		String sql = "SELECT DISTINCT\n" +
 				"    MUCCS.user_id AS userid,\n" +
 				"    MU.username,\n" +
-				"    concat(MC.id, '-', MC.sortorder) AS courseid,\n" +
+				"    MC.sortorder AS courseCode,\n" +
 				"    MUID2. DATA AS xueshi,\n" +
 				"		FROM_UNIXTIME(MUCCS.timecreated),\n" +
 				"		FROM_UNIXTIME(MUCCS.timemodified),\n" +
@@ -67,7 +68,7 @@ public class AddStudyRecordOld {
 		for (Object[] objs : selectList) {
 			String userId = MyUtils.valueOf(objs[0]);
 			String username = MyUtils.valueOf(objs[1]);
-			String courseCode = MyUtils.valueOf(objs[2]);
+			String preCourseCode = MyUtils.valueOf(objs[2]);
 			String xueshi = MyUtils.valueOf(objs[3]);
 			String createTime = MyUtils.valueOf(objs[4]);
 			String modifyTime = MyUtils.valueOf(objs[5]);
@@ -75,13 +76,26 @@ public class AddStudyRecordOld {
 			String courseId = MyUtils.valueOf(objs[7]);
 			
 			// 判断此课程属于鄂尔多斯课程
-			if (!codePocId.containsKey(courseCode)) {
-				courseCode = "CME-" + courseCode;
-				if (!codePocId.containsKey(courseCode)) {
-					System.out.println("没有在新平台查找到课程：" + courseId + "\t" + courseName);
-					lostCourseList.add(courseId + "\t" + courseName);
-					continue;
+			if (courseId.equals("6063")) {
+				System.out.println(courseId);
+			}
+			String courseCode = courseId + "-" + preCourseCode;
+			String[] courseCodes = {courseCode, "CME-" + courseCode, "EX-" + courseCode};
+			boolean isExist = false;
+			for (String string : courseCodes) {
+				if (codePocId.containsKey(string)) {
+					courseCode = string;
+					isExist = true;
+					break;
 				}
+			}
+			if (!isExist) {
+				String lostCourse =  courseId + "\t" + preCourseCode + "\t" + courseName;
+				System.out.println("没有在新平台查找到课程：" + lostCourse);
+				if (!lostCourseList.contains(lostCourse)) {
+					lostCourseList.add(lostCourse);
+				}
+				continue;
 			}
 			String pocId = codePocId.get(courseCode); // 开课Id
 			
@@ -219,6 +233,61 @@ public class AddStudyRecordOld {
 		}
 	}
 	
+	// 读取AddStudyRecordOld生成的缺失课程，进一步检验是否在新平台有缺失
+	public void selectNewCourse() {
+		String filePath = "E:/myJava/yiaiSql/lostCourse.txt";
+		List<String> lineList = MyUtils.readFile(filePath);
+
+		// 生成courseId的conditions
+		System.out.println("生成name的conditions");
+		Map<String, String> courseIdSortOrderMap = new HashMap<String, String>(); // <id,sortOrder>
+		String conditions = "";
+		for (String line : lineList) {
+			if (StringUtils.isNotBlank(line)) {
+				String[] strs = line.split("\t");
+				String courseId = strs[0];
+				String sortOrder = strs[1];
+				conditions += ",'" + courseId + "'";
+				courseIdSortOrderMap.put(courseId, sortOrder);
+			}
+		}
+		if (conditions.startsWith(",")) {
+			conditions = conditions.substring(1);
+		} else {
+			System.out.println("lostCourse内容为空");
+			return;
+		}
+
+		// 在新平台查找
+		System.out.println("在新平台查找");
+		List<String> updateCodeSqlList = new ArrayList<>();
+		String sql = "select c.ID,c.`NAME`,c.site_code from pe_tch_course c "
+				+ "where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9' and c.site_code in (" + conditions + ")";
+		List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
+		for (Object[] objects : list) {
+			String courseId = MyUtils.valueOf(objects[0]);
+			String courseName = MyUtils.valueOf(objects[1]);
+			String site_code = MyUtils.valueOf(objects[2]);
+			String sortOrder = courseIdSortOrderMap.get(site_code);
+			String newCode = "EX-" + site_code + "-" + sortOrder;
+			String updateSql = "update pe_tch_course set `CODE`='" + newCode + "' where id='" + courseId + "';";
+			updateCodeSqlList.add(updateSql);
+			System.out.println("新平台已经存在的课程：" + courseName);
+			courseIdSortOrderMap.remove(site_code);
+		}
+
+		// 输出缺失课程id
+		List<String> lostIdList = new ArrayList<String>();
+		for (Entry<String, String> entry : courseIdSortOrderMap.entrySet()) {
+			String key = entry.getKey();
+			lostIdList.add(key);
+		}
+		String path = "E:/myJava/yiaiSql/newlostCourse.txt";
+		MyUtils.outputList(lostIdList, path);
+		String path1 = "E:/myJava/yiaiSql/updateCourseCode.txt";
+		MyUtils.outputList(updateCodeSqlList, path1);
+	}
+	
 	public static void main(String[] args) {
 		AddStudyRecordOld addStudyRecord = new AddStudyRecordOld();
 		String classId2017 = "ff8080815e7696c1015e7a78d7f00313";
@@ -228,7 +297,7 @@ public class AddStudyRecordOld {
 		String classId2016 = "ff8080815e86ebf2015e92c4faae070f";
 		String eleModuleId2016 = "ff8080815e86ebf2015e92c4faed0710";
 		String studyModuleId2016 = "ff8080815e86ebf2015e92c4faed0711";
-		addStudyRecord.outputStudyRecord("2017-07-01", "2017-09-16", classId2017, eleModuleId2017, studyModuleId2017);
+		addStudyRecord.outputStudyRecord("2016-07-01", "2017-09-16", classId2017, eleModuleId2017, studyModuleId2017);
 		System.exit(0);
 	}
 }
