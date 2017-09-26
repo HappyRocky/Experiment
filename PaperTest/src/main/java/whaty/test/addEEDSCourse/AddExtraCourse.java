@@ -68,6 +68,8 @@ public class AddExtraCourse {
 				"LEFT JOIN mdl_lessonpage_quiz q on q.course_id=MC.id\n" +
 				"WHERE\n" +
 				"    (MCC3.id = '3' or MCC4.id = '347') ";
+//				"	MCC.is_cme <> 1\n" +
+//				"  and MCC4.id = 3\n";
 		if (flag == 0) { // 文本
 			sql += " AND MVCS.scids IS NULL ";
 		} else if (flag == 1) { // 七牛
@@ -121,8 +123,10 @@ public class AddExtraCourse {
 					"LEFT JOIN mdl_lessonpage_quiz q on q.course_id=MC.id\n" +
 					"LEFT JOIN mdl_lesson l ON l.course = MC.id\n" +
 					"LEFT JOIN mdl_lesson_pages p ON p.lessonid = l.id\n" +
-					"WHERE\n" +
+					"WHERE\n" + 
 					"    (MCC3.id = '3' ) ";
+//					"	MCC.is_cme <> 1\n" +
+//					"  and MCC4.id = 3\n";
 			if (flag == 0) { // 文本
 				sql += " AND MVCS.scids IS NULL ";
 			} else if (flag == 1) { // 七牛
@@ -158,11 +162,29 @@ public class AddExtraCourse {
 					courseCodeList.add(newCode);
 				}
 				
-				// 重复验证
-				if (exitCodeSubMap.containsKey(courseId)) {
-					System.out.println("课程在新平台已存在：" + courseId + "," + fullName);
+				// 判断是否存在于新平台
+				String courseCode = courseId + "-" + sortOrder;
+				String[] courseCodes = {courseCode, "CME-" + courseCode, "EX-" + courseCode};
+				boolean isExist = false;
+				for (String string : courseCodes) {
+					if (exitCodeSubMap.containsKey(string)) {
+						courseCode = string;
+						isExist = true;
+						break;
+					}
+				}
+				if (!isExist) {
+					System.out.println("没有在新平台查找到课程：" + courseId + "," + fullName);
 					continue;
-				} 
+				}
+				newCode = courseCode;
+				
+				
+				// 重复验证
+//				if (exitCodeSubMap.containsKey(courseId)) {
+//					System.out.println("课程在新平台已存在：" + courseId + "," + fullName);
+//					continue;
+//				}
 				
 				// 检验学科是否存在，插入新学科
 				String name2 = p1name.replaceAll("、", "");
@@ -350,7 +372,8 @@ public class AddExtraCourse {
 				}
 				
 				// 插入至webtrn
-				String newId = MyUtils.uuid();
+				String newId = exitCodeSubMap.get(newCode);
+//				String newId = MyUtils.uuid();
 				String courseTypeId = (flag == 0 ? "ff80808155da5b850155dddc04d704d5" : "ff80808157084dfb0157085339f60008");
 				String label = (flag == 0 ? "" : "鄂尔多斯七牛视频");
 				String flagExam = (flag == 0 ? "40288a1c2f0acd2d012f0acf2a680002" : "40288a1c2f0acd2d012f0ace87040001");
@@ -400,11 +423,12 @@ public class AddExtraCourse {
 						(StringUtils.isBlank(zhichengId) ? " null," : " '" + zhichengId + "', ") +
 						(StringUtils.isBlank(expertId) ? " null," : " '" + expertId + "', ") +
 						"		'bb3c4d5290f911e69b44848f69e05bf0' " +
-						"	) ON DUPLICATE KEY UPDATE fk_subject_id=values(fk_subject_id);";
+//						"	) ON DUPLICATE KEY UPDATE fk_subject_id=values(fk_subject_id);";
+						"	) ON DUPLICATE KEY UPDATE flag_ability=values(flag_ability),fk_origin_id=values(fk_origin_id);";
 				addWebtrnCourse.add(sql);
 				
 				// 插入至课程空间
-				addSpaceCourse.addAll(generateSpaceSql(flag, newId, toSql(fullName), courseId, newCode, subCode, laiyuanCode, nengliName, zhichengName, zhutiName, notes));
+				addSpaceCourse.addAll(generateSpaceSql(flag, newId, toSql(fullName), courseId, newCode, subCode, laiyuanCode, nengliCode, zhichengName, zhutiName, notes));
 			}
 			
 			String path1 = "E:/myJava/yiaiSql/" + date + "/addWebtrnCourse_from_" + begin + ".sql";
@@ -567,49 +591,50 @@ public class AddExtraCourse {
 				"		'" + careerName + "', " +
 				"		'" + themeName + "', " +
 				"		'0' " +
-				"	) ON DUPLICATE KEY UPDATE SUBJECT=values(SUBJECT);";
+//				"	) ON DUPLICATE KEY UPDATE SUBJECT=values(SUBJECT);";
+				"	) ON DUPLICATE KEY UPDATE ORIGIN=values(ORIGIN),ABILITY=values(ABILITY);";
 		resultList.add(sql);
 		// 插入11个column
-		String sectionId = "";
-		String textId = "";
-		String videoId = "";
-		for (int i = 0; i < columnType.length; i++) {
-			String id = MyUtils.uuid();
-			if (columnType[i].equals("section")) {
-				sectionId = id;
-			} else if (columnType[i].equals("text")) {
-				textId = id;
-			} else if (columnType[i].equals("video")) {
-				videoId = id;
-			} 
-			sql = "INSERT INTO `pe_workroom_column` (`ID`, `course`, `name`, `typt`, `serial`, `category`) " 
-					+ "VALUES ('" + id + "', '" + newId + "', '" + columnName[i] + "', '" + columnType[i] + "', '" + (i + 1) + "', '1') ON DUPLICATE KEY UPDATE id=id;";
-			resultList.add(sql);
-		}
-		// 插入info
-		String infoId = MyUtils.uuid();
-		sql = "INSERT INTO `scorm_course_info` (`ID`, `TITLE`, `CONTROL_TYPE`, `NAVIGATE`, `FK_COURSE_ID`)" 
-				+ "VALUES ('" + infoId + "', '" + fullName + "', 'choice', 'platform_nav, platform_nav', '" + newId + "') ON DUPLICATE KEY UPDATE id=id;";
-		resultList.add(sql);
-		// 插入item
-		String[] newItemIds = {MyUtils.uuid(), MyUtils.uuid(), MyUtils.uuid(), MyUtils.uuid()};
-		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
-				+ "VALUES ( '" + newItemIds[0] + "', '" + infoId + "', 'section', '" + fullName + "', '1', '1', '" + infoId + "', 'section', '1', '" + sectionId + "', NULL, '0' ) ON DUPLICATE KEY UPDATE id=id;";
-		resultList.add(sql);
-		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
-				+ "VALUES ( '" + newItemIds[1] + "', '" + infoId + "', 'section', '" + fullName + "', '2', '2', '" + newItemIds[0] + "', 'section', '1', '" + sectionId + "', '" + newItemIds[0] + "', '1' ) ON DUPLICATE KEY UPDATE id=id;";
-		resultList.add(sql);
-		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
-				+ "VALUES ( '" + newItemIds[2] + "', '" + infoId + "', 'section', '" + fullName + "', '3', '3', '" + newItemIds[1] + "', 'section', '1', '" + sectionId + "', '" + newItemIds[1] + "', '1-1' ) ON DUPLICATE KEY UPDATE id=id;";
-		resultList.add(sql);
-		if (flag == 0) {
-			sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `note_en`,note,`language` ) " 
-					+ "VALUES ( '" + newItemIds[3] + "', '" + infoId + "', 'text', '" + fullName + "', '4', '4', '" + newItemIds[2] + "', 'text', '1', '" + textId + "', '" + newItemIds[2] + "', '" + en + "', '" + ch + "', '" + lan + "' ) ON DUPLICATE KEY UPDATE id=id;";
-		} else {
-			sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `SCO_TYPE`, `LAUNCH` ) " 
-					+ "VALUES ( '" + newItemIds[3] + "', '" + infoId + "', 'video', '" + fullName + "', '4', '4', '" + newItemIds[2] + "', 'video', '1', '" + videoId + "', '" + newItemIds[2] + "', 'QINIU', 'http://linchuang.yiaiwang.com.cn/my/elsevierproject/whaty/course_view.php?courseid=" + courseId + "' ) ON DUPLICATE KEY UPDATE id=id;";
-		}
-		resultList.add(sql);
+//		String sectionId = "";
+//		String textId = "";
+//		String videoId = "";
+//		for (int i = 0; i < columnType.length; i++) {
+//			String id = MyUtils.uuid();
+//			if (columnType[i].equals("section")) {
+//				sectionId = id;
+//			} else if (columnType[i].equals("text")) {
+//				textId = id;
+//			} else if (columnType[i].equals("video")) {
+//				videoId = id;
+//			} 
+//			sql = "INSERT INTO `pe_workroom_column` (`ID`, `course`, `name`, `typt`, `serial`, `category`) " 
+//					+ "VALUES ('" + id + "', '" + newId + "', '" + columnName[i] + "', '" + columnType[i] + "', '" + (i + 1) + "', '1') ON DUPLICATE KEY UPDATE id=id;";
+//			resultList.add(sql);
+//		}
+//		// 插入info
+//		String infoId = MyUtils.uuid();
+//		sql = "INSERT INTO `scorm_course_info` (`ID`, `TITLE`, `CONTROL_TYPE`, `NAVIGATE`, `FK_COURSE_ID`)" 
+//				+ "VALUES ('" + infoId + "', '" + fullName + "', 'choice', 'platform_nav, platform_nav', '" + newId + "') ON DUPLICATE KEY UPDATE id=id;";
+//		resultList.add(sql);
+//		// 插入item
+//		String[] newItemIds = {MyUtils.uuid(), MyUtils.uuid(), MyUtils.uuid(), MyUtils.uuid()};
+//		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
+//				+ "VALUES ( '" + newItemIds[0] + "', '" + infoId + "', 'section', '" + fullName + "', '1', '1', '" + infoId + "', 'section', '1', '" + sectionId + "', NULL, '0' ) ON DUPLICATE KEY UPDATE id=id;";
+//		resultList.add(sql);
+//		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
+//				+ "VALUES ( '" + newItemIds[1] + "', '" + infoId + "', 'section', '" + fullName + "', '2', '2', '" + newItemIds[0] + "', 'section', '1', '" + sectionId + "', '" + newItemIds[0] + "', '1' ) ON DUPLICATE KEY UPDATE id=id;";
+//		resultList.add(sql);
+//		sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `LOCATION` ) " 
+//				+ "VALUES ( '" + newItemIds[2] + "', '" + infoId + "', 'section', '" + fullName + "', '3', '3', '" + newItemIds[1] + "', 'section', '1', '" + sectionId + "', '" + newItemIds[1] + "', '1-1' ) ON DUPLICATE KEY UPDATE id=id;";
+//		resultList.add(sql);
+//		if (flag == 0) {
+//			sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `note_en`,note,`language` ) " 
+//					+ "VALUES ( '" + newItemIds[3] + "', '" + infoId + "', 'text', '" + fullName + "', '4', '4', '" + newItemIds[2] + "', 'text', '1', '" + textId + "', '" + newItemIds[2] + "', '" + en + "', '" + ch + "', '" + lan + "' ) ON DUPLICATE KEY UPDATE id=id;";
+//		} else {
+//			sql = "INSERT INTO `scorm_course_item` ( `ID`, `FK_SCORM_COURSE_ID`, `TYPE`, `TITLE`, `SEQUENCE`, `THELEVEL`, `ITEM_ID`, `wareType`, `flagActive`, `column_Id`, `FK_PARENT_ID`, `SCO_TYPE`, `LAUNCH` ) " 
+//					+ "VALUES ( '" + newItemIds[3] + "', '" + infoId + "', 'video', '" + fullName + "', '4', '4', '" + newItemIds[2] + "', 'video', '1', '" + videoId + "', '" + newItemIds[2] + "', 'QINIU', 'http://linchuang.yiaiwang.com.cn/my/elsevierproject/whaty/course_view.php?courseid=" + courseId + "' ) ON DUPLICATE KEY UPDATE id=id;";
+//		}
+//		resultList.add(sql);
 		return resultList;
 	}
 	
@@ -895,11 +920,11 @@ public class AddExtraCourse {
 		}
 		// 获取已存在的课程
 		exitCodeSubMap = new HashMap<>();
-		sql = "select c.`SITE_CODE`,c.fk_subject_id from pe_tch_course c where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
+		sql = "select c.`code`,c.fk_subject_id,c.id from pe_tch_course c where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : list) {
 			String code = MyUtils.valueOf(objects[0]);
-			String id = MyUtils.valueOf(objects[1]);
+			String id = MyUtils.valueOf(objects[2]);
 			if (StringUtils.isNotBlank(code)) {
 				exitCodeSubMap.put(code, id);
 			}

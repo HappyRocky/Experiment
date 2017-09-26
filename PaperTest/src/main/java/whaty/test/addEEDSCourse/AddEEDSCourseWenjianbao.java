@@ -386,7 +386,7 @@ public class AddEEDSCourseWenjianbao {
 				addWebtrnCourse.add(sql);
 				
 				// 插入至课程空间
-				addSpaceCourse.addAll(generateSpaceSql(newId, toSql(fullName), newCode, subCode, laiyuanCode, nengliName, zhichengName, zhutiName));
+				addSpaceCourse.addAll(generateSpaceSql(newId, toSql(fullName), newCode, subCode, laiyuanCode, nengliCode, zhichengName, zhutiName));
 			}
 			
 			String path1 = "E:/myJava/yiaiSql/" + date + "/addWebtrnCourse_from_" + begin + ".sql";

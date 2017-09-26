@@ -29,6 +29,9 @@ public class AddStudyRecordOld {
 	private Map<String, String> loginIdStuIdMap; // <loginId,studentId> space
 	private Set<String> loginIdCodeSet; // 存放已经存在的 loginId-courseCode
 	
+	// 原平台不需要迁移的课程id（114门七牛文件包   MP3+ppt 或  三分屏课程）
+	public static String noNeedAddMCIdConditions = "'1255','1257','1260','1263','1268','1269','1272','1273','1274','1275','1278','1277','1279','1280','1702','1708','1714','1720','1745','1749','1753','1758','1764','1770','4682','4683','4684','4685','4686','4687','4688','4689','4690','4691','4694','4697','4700','4701','4702','4699','4703','4704','4698','4696','4695','4693','4692','5709','9329','9330','9331','9335','9337','10376','10377','10611','10612','10613','10614','10615','10616','10617','10618','10619','10620','10643','10644','10650','10657','10665','10669','10676','10677','10678','10679','10680','10681','10682','10683','10684','10685','10686','10687','10688','10689','10690','10691','10692','10693','10694','10695','10696','10697','10698','10699','10700','10701','10702','10703','10704','10705','10706','10707','10708','10709','10710','10711','10712','10713','10714','12020','12028','12029','4581'";
+	
 	public void outputStudyRecord(String startTime, String endTime, String classId, String eleModuleId, String studyModuleId){
 		init(classId);
 		int maxSize = 3000;
@@ -62,8 +65,8 @@ public class AddStudyRecordOld {
 				" AND MUCCS.timecreated >= UNIX_TIMESTAMP('" + startTime + "')\n" +
 				" AND MUCCS.timecreated <= UNIX_TIMESTAMP('" + endTime + "')\n" +
 				"AND MCCO. STATUS = 50\n" +
-//				"AND MCC.is_cme <> 1\n" +
-				"AND (MU.username like 'erds@%' or MU.username like 'dltq@%')";
+				"AND (MU.username like 'erds@%' or MU.username like 'dltq@%') " +
+				"AND MC.id not in (" + noNeedAddMCIdConditions + ")";
 		List<Object[]> selectList = SshMysqlYiaiwang.queryBySQL(sql);
 		for (Object[] objs : selectList) {
 			String userId = MyUtils.valueOf(objs[0]);
@@ -76,9 +79,6 @@ public class AddStudyRecordOld {
 			String courseId = MyUtils.valueOf(objs[7]);
 			
 			// 判断此课程属于鄂尔多斯课程
-			if (courseId.equals("6063")) {
-				System.out.println(courseId);
-			}
 			String courseCode = courseId + "-" + preCourseCode;
 			String[] courseCodes = {courseCode, "CME-" + courseCode, "EX-" + courseCode};
 			boolean isExist = false;
@@ -99,13 +99,6 @@ public class AddStudyRecordOld {
 			}
 			String pocId = codePocId.get(courseCode); // 开课Id
 			
-			
-			// 判断是否已经选课
-			String key = username + "_" + courseCode;
-			if (loginIdCodeSet.contains(key)) {
-				continue;
-			}
-			
 			// 此学员在新平台中
 			if (!loginIdPtIdMap.containsKey(username)) { 
 				continue;
@@ -119,12 +112,27 @@ public class AddStudyRecordOld {
 			}
 			String stuId = loginIdStuIdMap.get(username);
 			
-			// webtrn选课
+			// 判断是否已经选课
+			String key = username + "_" + courseCode;
+			if (loginIdCodeSet.contains(key)) {
+				continue;
+			}
 			loginIdCodeSet.add(key); // 选课
+			
+			// webtrn选课
 			String eleId = MyUtils.uuid();
 			if (StringUtils.isBlank(xueshi)) {
 				xueshi = "0";
 			}
+			if (xueshi.equals("３")) {
+				xueshi = "3";
+			}
+			try {
+				Double.parseDouble(xueshi);
+			} catch (NumberFormatException e) {
+				System.out.println("将学时转为double失败：学时=" + xueshi);
+			}
+			
 			String insertSql = "insert into pe_tch_elective (id,fk_trainee_id,fk_opencourse_id,elective_date,status,flag_fee_check,fk_site_id,start_service_date,finishDate,result0,SCORE) "
 					+ "values ('" + eleId + "','" + ptId + "','" + pocId + "','" + createTime + "','40288a962f15bc98012f15c3cd970002','40288a962f15bc98012f15c3cd970002','ff80808155da5b850155dddbec9404c9','" + createTime + "','" + modifyTime + "','" + xueshi + "','100.0')  ON DUPLICATE KEY UPDATE result0=values(result0);";
 			insertWebtrnSqlList.add(insertSql);
@@ -297,7 +305,8 @@ public class AddStudyRecordOld {
 		String classId2016 = "ff8080815e86ebf2015e92c4faae070f";
 		String eleModuleId2016 = "ff8080815e86ebf2015e92c4faed0710";
 		String studyModuleId2016 = "ff8080815e86ebf2015e92c4faed0711";
-		addStudyRecord.outputStudyRecord("2016-07-01", "2017-09-16", classId2017, eleModuleId2017, studyModuleId2017);
+//		addStudyRecord.outputStudyRecord("2017-07-01", "2017-09-25", classId2017, eleModuleId2017, studyModuleId2017);
+		addStudyRecord.outputStudyRecord("2016-07-01", "2017-07-01", classId2016, eleModuleId2016, studyModuleId2016);
 		System.exit(0);
 	}
 }
