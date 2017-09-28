@@ -18,7 +18,7 @@ import whaty.test.SshMysqlYiaiwang;
 
 /** 
  * @className:MatchUser.java
- * @classDescription:迁移鄂尔多斯学习记录，eeds和dltq开头的，同时会输出新平台没有的课程，然后经过selectNewCourse处理，进行迁移新课程
+ * @classDescription:迁移鄂尔多斯学习记录，eeds和dltq开头的，同时会输出新平台没有的课程，然后经过selectNewCourse处理，进行迁移新课程。然后需要运行AddStuSco，课程空间添加学习完成记录
  * @author:yourname
  * @createTime:2017年9月14日
  */
@@ -67,7 +67,8 @@ public class AddStudyRecordOld {
 				"AND MCCO. STATUS = 50\n" +
 				"AND (MU.username like 'erds@%' or MU.username like 'dltq@%') " +
 				"AND MC.id not in (" + noNeedAddMCIdConditions + ")";
-		List<Object[]> selectList = SshMysqlYiaiwang.queryBySQL(sql);
+//		List<Object[]> selectList = SshMysqlYiaiwang.queryBySQL(sql);
+		List<Object[]> selectList = generateObjectList();
 		for (Object[] objs : selectList) {
 			String userId = MyUtils.valueOf(objs[0]);
 			String username = MyUtils.valueOf(objs[1]);
@@ -174,6 +175,7 @@ public class AddStudyRecordOld {
 					"		'0' " +
 					"	) ON DUPLICATE KEY UPDATE score1=values(score1);";
 			insertSpaceSqlList.add(insertSql);
+			
 		}
 		String path1 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/addWebtrnRecord.sql";
 		MyUtils.outputList(insertWebtrnSqlList, path1);
@@ -296,6 +298,38 @@ public class AddStudyRecordOld {
 		MyUtils.outputList(updateCodeSqlList, path1);
 	}
 	
+	// 对特殊学员进行补课
+	public List<Object[]> generateObjectList(){
+		List<Object[]> result = new ArrayList<>();
+		// 需要补课的学员
+		String[] loginIdList = {"erds@4735.com", "erds@4700.com", "erds@4224.com", "erds@6406.com", "erds@4650.com", "erds@4643.com", "erds@4638.com"};
+		
+		// 需要补的课
+		String path = "F:/whaty/医爱数据库迁移/补课名称.xls";
+		List<String[]> courseList = MyUtils.readExcel(path);
+		
+		// 双重循环进行补课
+		for (String[] courseLine : courseList) {
+			String courseName = courseLine[0];
+			if (StringUtils.isBlank(courseName)) {
+				continue;
+			}
+			String courseCode = courseLine[1];
+			String[] codes = courseCode.split("-");
+			String userId = "";
+			String preCourseCode = codes[1];
+			String xueshi = "1";
+			String createTime = courseLine[16];
+			String modifyTime = createTime;
+			String courseId = codes[0];
+			for (String loginId : loginIdList) {
+				Object[] obj = {userId, loginId, preCourseCode, xueshi, createTime, modifyTime, courseName, courseId};
+				result.add(obj);
+			}
+		}
+		return result;
+	}
+	
 	public static void main(String[] args) {
 		AddStudyRecordOld addStudyRecord = new AddStudyRecordOld();
 		String classId2017 = "ff8080815e7696c1015e7a78d7f00313";
@@ -305,8 +339,9 @@ public class AddStudyRecordOld {
 		String classId2016 = "ff8080815e86ebf2015e92c4faae070f";
 		String eleModuleId2016 = "ff8080815e86ebf2015e92c4faed0710";
 		String studyModuleId2016 = "ff8080815e86ebf2015e92c4faed0711";
-//		addStudyRecord.outputStudyRecord("2017-07-01", "2017-09-25", classId2017, eleModuleId2017, studyModuleId2017);
-		addStudyRecord.outputStudyRecord("2016-07-01", "2017-07-01", classId2016, eleModuleId2016, studyModuleId2016);
+		addStudyRecord.outputStudyRecord("2017-07-01", "2017-09-27", classId2017, eleModuleId2017, studyModuleId2017);
+//		addStudyRecord.outputStudyRecord("2016-07-01", "2017-07-01", classId2016, eleModuleId2016, studyModuleId2016);
+		
 		System.exit(0);
 	}
 }
