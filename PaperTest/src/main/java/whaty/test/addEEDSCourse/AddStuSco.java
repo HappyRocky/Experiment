@@ -89,7 +89,7 @@ public class AddStuSco {
 	
 	public static void main(String[] args) {
 		AddStuSco addStuSco = new AddStuSco();
-		addStuSco.outputAddStuScoSql("2017-07-01",null);
+		addStuSco.outputAddStuScoSql("2017-09-27",null);
 		System.exit(0);
 	}
 }

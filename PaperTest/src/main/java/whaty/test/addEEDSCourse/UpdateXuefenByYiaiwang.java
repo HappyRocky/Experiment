@@ -248,7 +248,7 @@ public class UpdateXuefenByYiaiwang {
 		String classId2017 = "ff8080815e7696c1015e7a78d7f00313";
 		String classId2016 = "ff8080815e86ebf2015e92c4faae070f";
 		UpdateXuefenByYiaiwang updateXuefen = new UpdateXuefenByYiaiwang();
-		updateXuefen.outputUpdateXuefenList(classId2017, "2017", "2017-07-01", "2017-09-27");
+		updateXuefen.outputUpdateXuefenList(classId2017, "2017", "2017-07-01", "2017-09-29");
 //		updateXuefen.outputUpdateXuefenList(classId2016, "2016", "2016-07-01", "2017-07-01");
 		System.exit(0);
 	}

@@ -67,8 +67,8 @@ public class AddStudyRecordOld {
 				"AND MCCO. STATUS = 50\n" +
 				"AND (MU.username like 'erds@%' or MU.username like 'dltq@%') " +
 				"AND MC.id not in (" + noNeedAddMCIdConditions + ")";
-//		List<Object[]> selectList = SshMysqlYiaiwang.queryBySQL(sql);
-		List<Object[]> selectList = generateObjectList();
+		List<Object[]> selectList = SshMysqlYiaiwang.queryBySQL(sql);
+//		List<Object[]> selectList = generateObjectList();
 		for (Object[] objs : selectList) {
 			String userId = MyUtils.valueOf(objs[0]);
 			String username = MyUtils.valueOf(objs[1]);
@@ -339,7 +339,7 @@ public class AddStudyRecordOld {
 		String classId2016 = "ff8080815e86ebf2015e92c4faae070f";
 		String eleModuleId2016 = "ff8080815e86ebf2015e92c4faed0710";
 		String studyModuleId2016 = "ff8080815e86ebf2015e92c4faed0711";
-		addStudyRecord.outputStudyRecord("2017-07-01", "2017-09-27", classId2017, eleModuleId2017, studyModuleId2017);
+		addStudyRecord.outputStudyRecord("2017-09-27", "2017-09-29", classId2017, eleModuleId2017, studyModuleId2017);
 //		addStudyRecord.outputStudyRecord("2016-07-01", "2017-07-01", classId2016, eleModuleId2016, studyModuleId2016);
 		
 		System.exit(0);
