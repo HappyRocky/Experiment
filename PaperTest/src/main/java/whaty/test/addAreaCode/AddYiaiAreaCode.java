@@ -7,9 +7,11 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import utils.DateUtils;
 import whaty.test.MyUtils;
 import whaty.test.SshMysqlWebtrn;
 import whaty.test.SshMysqlWebtrn57;
+import whaty.test.SshMysqlWebtrnTest;
 
 /** 
  * @className:AddYiaiAreaCode.java
@@ -21,7 +23,8 @@ public class AddYiaiAreaCode {
 	
 //	private static final String[] LEVEL_CODES = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 //	private static final String SITE_ID = "ff80808155de17270155de1ecca20448"; // 49
-	private static final String SITE_ID = "ff80808155da5b850155dddbec9404c9"; // 85
+//	private static final String SITE_ID = "ff80808155da5b850155dddbec9404c9"; // 85
+	private static final String SITE_ID = "ff80808155d8b4ea0155dd0b669d0277"; // 93
 	List<AreaCode> allNodeList = null;
 	
 	/**
@@ -49,6 +52,9 @@ public class AddYiaiAreaCode {
 				} else {
 					// 选出最后一个编码数字的最大值
 					int lastSerial = 0;
+					if (levelCode.endsWith("/")) {
+						levelCode = levelCode.substring(0, levelCode.length() - 1);
+					}
 					int idx = levelCode.lastIndexOf("/");
 					if (idx >= 0) {
 						lastSerial = Integer.valueOf(levelCode.substring(idx + 1));
@@ -66,7 +72,8 @@ public class AddYiaiAreaCode {
 			// 遍历没有层级编码的子节点，生成层级编码
 			for (int i = 0; i < childCodeNoCodeList.size(); i++) {
 				AreaCode curAreaCode = childCodeNoCodeList.get(i);
-				curAreaCode.setLevelCode(areaCode.getLevelCode() + "/" + (startSerial + i));
+				String a = areaCode.getLevelCode().endsWith("/") ? "" : "/";
+				curAreaCode.setLevelCode(areaCode.getLevelCode() + a + (startSerial + i) + "/");
 			}
 			// 将刚刚生成层级编码的节点加入到输出队列
 			result.addAll(childCodeNoCodeList);
@@ -103,7 +110,7 @@ public class AddYiaiAreaCode {
 		// 存储医爱网下所有的区域节点
 		System.out.println("查询医爱网所有的区域节点...");
 		String sql = "select a.id,a.`name`,a.`level`,a.level_code,a.fk_parent_id from pe_area a where a.fk_site_id='" + SITE_ID + "'";
-		List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
+		List<Object[]> list = SshMysqlWebtrnTest.getBySQL(sql);
 		if (CollectionUtils.isNotEmpty(list)) {
 			allNodeList = new LinkedList<>(); // 所有的区域节点
 			List<AreaCode> needRepairList = new ArrayList<>(); // 需要修复的区域节点
@@ -120,7 +127,7 @@ public class AddYiaiAreaCode {
 				// 处理顶级节点
 				if (level == 0) {
 					if (StringUtils.isBlank(levelCode)) { // 顶级节点也需要修复levelCode
-						areaCode.setLevelCode("0");
+						areaCode.setLevelCode("0/");
 						needRepairList.add(areaCode);
 					}
 					topAreaCode = areaCode;
@@ -139,7 +146,7 @@ public class AddYiaiAreaCode {
 	}
 	
 	public static void main(String[] args) {
-		String path = "E:/myJava/yiaiSql/20170822/updateAreaCode.sql";
+		String path = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/updateAreaCode.sql";
 		AddYiaiAreaCode addYiaiAreaCode = new AddYiaiAreaCode();
 		addYiaiAreaCode.outputUpdateSql(path);
 		System.exit(0);
