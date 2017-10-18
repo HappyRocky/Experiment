@@ -18,10 +18,10 @@ import com.jcraft.jsch.Session;
  * 使用SSH连接Mysql
  */
 @SuppressWarnings("all")
-public class SshMysqlWebtrn {
-	static int lport = 3308;                  //本地端口  映射到本地的端口
-	static String host = "192.168.148.51";    //远程MySQL服务器  
-	static int rport = 33305;                 //远程MySQL服务端口 
+public class SshMysqlSso {
+	static int lport = 3312;                  //本地端口  映射到本地的端口
+	static String host = "192.168.148.52";    //远程MySQL服务器  
+	static int rport = 13301;                 //远程MySQL服务端口 
 	
 	static String sshhost = "210.14.140.85";  //远程服务器地址
 	static String sshusername = "webtrn";       //服务器用户名
@@ -37,7 +37,7 @@ public class SshMysqlWebtrn {
 		String ITEM_PERCENT = "92";
 		String ELECTIVE_ID = "e090100472894a00b05ba6b33047749c";
 		
-		String sql = "select * from pe_trainee where id=''";
+		String sql = "select * from ucenter_user where id=''";
 		List<Object[]> result = getBySQL(sql);
 		System.out.println("运行结果=" + result + "，sql=" + sql);
 		
@@ -53,7 +53,7 @@ public class SshMysqlWebtrn {
 			//2、创建连接  
 			go();
 			//映射到本地的服务
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/webtrn", "webtrn", "X55lhVAc");
+			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/whatycasserver", "whatycasserver", "AShjuGA9");
 		} catch (Exception e) {
 		}
 		return conn;

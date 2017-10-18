@@ -262,22 +262,24 @@ public class MyUtils {
 			Workbook rwb = Workbook.getWorkbook(stream);
 			// 获取文件的指定工作表 默认的第一个
 			Sheet sheet = rwb.getSheet(sheetIdx - 1);
-			// 行数(表头的目录不需要，从1开始)
-			for (int i = 1; i < sheet.getRows(); i++) {
-				// 创建一个数组 用来存储每一列的值
-				String[] str = new String[sheet.getColumns()];
-				Cell cell = null;
-				// 列数
-				for (int j = 0; j < sheet.getColumns(); j++) {
-					// 获取第i行，第j列的值
-					cell = sheet.getCell(j, i);
-					str[j] = cell.getContents();
+			if (sheet != null) {
+				// 行数(表头的目录不需要，从1开始)
+				for (int i = 1; i < sheet.getRows(); i++) {
+					// 创建一个数组 用来存储每一列的值
+					String[] str = new String[sheet.getColumns()];
+					Cell cell = null;
+					// 列数
+					for (int j = 0; j < sheet.getColumns(); j++) {
+						// 获取第i行，第j列的值
+						cell = sheet.getCell(j, i);
+						str[j] = cell.getContents();
+					}
+					// 把刚获取的列存入list
+					resultList.add(str);
 				}
-				// 把刚获取的列存入list
-				resultList.add(str);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 		}
 		return resultList;
 	}

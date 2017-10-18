@@ -28,6 +28,7 @@ public class UpdateERDSStudentInfo {
 	private Map<String, String> deptMap;
 	private Map<String, String> titleMap;
 	private Map<String, String> educationMap;
+	private Map<String, String> ssoLoginIdMap;
 	
 	public static void main(String[] args) {
 		UpdateERDSStudentInfo updateERDSStudentInfo = new UpdateERDSStudentInfo();
@@ -85,139 +86,213 @@ public class UpdateERDSStudentInfo {
 		for (Object[] objects : titleList) {
 			educationMap.put(objects[1].toString(), objects[0].toString());
 		}
+		// 得到用户中心的loginID和id
+//		ssoLoginIdMap = new HashMap<String, String>();
+//		sql = "select username,id from ucenter_user where username like 'erds@%'";
+//		titleList = SshMysqlSso.getBySQL(sql);
+//		for (Object[] objects : titleList) {
+//			ssoLoginIdMap.put(objects[0].toString(), objects[1].toString());
+//		}
 	}
 	
 	public void generalUpdateSqlList(){
 		getEEDSAreaList();
 		System.out.println("查询基础信息完毕");
+		String[] fileNames = {"2-准格尔旗大路医院-用户名","2-准格尔旗疾控中心-用户名","2-准格尔旗继教补报名单-用户名","2-准旗合管办-用户名","2-准旗人民医院-用户名","2-准旗中蒙医院-用户名","2-准旗中心医院-用户名"};
 		List<String> result = new ArrayList<>();
 		List<String> addDepartList = new ArrayList<>();
 		List<String> addHospitalList = new ArrayList<>();
+		List<String> updateSsoMobile = new ArrayList<>();
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2.xls";
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗人民医院北大医学网花名册2-1.xls";
-		String path = "F:/whaty/医爱数据库迁移/2-准格尔旗2017/2-准格尔旗2017/2-准格尔旗继教补报名单.xls";
-		List<String[]> lineList = MyUtils.readExcel(path);
-		for (int i = 0; i < lineList.size(); i++) {
-			String[] strs = lineList.get(i);
-			String loginId = MyUtils.valueOf(strs[0]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String workPlace = MyUtils.valueOf(strs[3]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String depart = MyUtils.valueOf(strs[5]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String title = MyUtils.valueOf(strs[6]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String education = MyUtils.valueOf(strs[7]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String major = MyUtils.valueOf(strs[8]).trim().replaceAll(" ", "").replaceAll("　", "");
-			String county = "准格尔旗";
-			
-			if (StringUtils.isBlank(loginId)) {
-				continue;
-			}
-			
-			// 判断学员是否存在
-			String ptId = "";
-			if (loginIdMap.containsKey(loginId)) {
-				ptId = loginIdMap.get(loginId);
-			} else {
-				System.out.println("不存在此学员：" + loginId);
-				continue;
-			}
-			
-			// 查询区域id
-			String areaId = "";
-			AreaCode parentArea = null;
-			String workPlaceId = "";
-			if (StringUtils.isNotBlank(county)) {
-				for (AreaCode areaCode : eedsAreaList) {
-					if (areaCode.getName().equals(county)) {
-						areaId = areaCode.getId();
-						parentArea = areaCode;
-						break;
+		for (String fileName : fileNames) {
+			String path = "F:/whaty/医爱数据库迁移/2-准格尔旗2017-用户名/" + fileName + ".xls";
+			for (int j = 1; j <= 3; j++) {
+				List<String[]> lineList = MyUtils.readExcel(path, j);
+				for (int i = 0; i < lineList.size(); i++) {
+					String[] strs = lineList.get(i);
+					String loginId = MyUtils.valueOf(strs[0]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String name = MyUtils.valueOf(strs[2]).trim().replaceAll(" ", "").replaceAll("　", ""); 
+					String workPlace = MyUtils.valueOf(strs[3]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String idcard = MyUtils.valueOf(strs[4]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String depart = MyUtils.valueOf(strs[5]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String title = MyUtils.valueOf(strs[6]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String education = MyUtils.valueOf(strs[7]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String major = MyUtils.valueOf(strs[8]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String mobile = MyUtils.valueOf(strs[9]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String county = "准格尔旗";
+					
+					if (StringUtils.isBlank(loginId)) {
+						continue;
 					}
-				}
-				if (StringUtils.isEmpty(areaId)) {
-					System.out.println("区域不存在：" + county);
-					continue;
-				}
-				
-				// 查询单位id
-				List<AreaCode> hospitalList = hospitalMap.get(areaId);
-				for (AreaCode areaCode : hospitalList) {
-					if (areaCode.getName().equals(workPlace)) {
-						workPlaceId = areaCode.getId();
-						break;
+					
+					// 判断学员是否存在
+					String ptId = "";
+					if (loginIdMap.containsKey(loginId)) {
+						ptId = loginIdMap.get(loginId);
+					} else {
+						System.out.println("不存在此学员：" + loginId);
+						continue;
 					}
-				}
-				if (StringUtils.isEmpty(workPlaceId)) {
-					System.out.println("自动添加单位：" + parentArea.getName() + " 下的 " + workPlace);
-					// 添加新单位
-					Map map = addNewHospital(hospitalList, parentArea, workPlace);
-					addHospitalList.add(map.get("sql").toString());
-					AreaCode newAreaCode = (AreaCode)map.get("areaCode");
-					hospitalList.add(newAreaCode);
-					workPlaceId = newAreaCode.getId();
-				}
-			}
-			
-			// 查询科室id
-			if (depart.contains("、")) {
-				depart = depart.substring(0, depart.indexOf("、"));
-			}
-			if (depart.contains("-->")) {
-				depart = depart.substring(depart.lastIndexOf("-->") + 3);
-			}
-			String deptId = "";
-			if (deptMap.containsKey(depart)) {
-				deptId = deptMap.get(depart);
-			} else {
-				for (Entry<String, String> entry : deptMap.entrySet()) {
-					String deptName = entry.getKey();
-					if (deptName.contains(depart)) {
-						deptId = entry.getValue();
-						break;
+					
+					// 查询区域id
+					if (workPlace.contains("准旗")) {
+						workPlace = workPlace.replace("准旗", "准格尔旗");
 					}
-				}
-			}
-			if (StringUtils.isEmpty(deptId) && !"无".equals(depart)) {
-				System.out.println("自动添加科室：" + depart);
-				deptId = MyUtils.uuid();
-				addDepartList.addAll(addDepartment(depart, deptId));
-				deptMap.put(depart, deptId);
-			}
-			
-			// 查询职称id
-			String titleId = "";
-			if (StringUtils.isNotBlank(title)) {
-				if (title.contains("、")) {
-					title = title.substring(0, title.indexOf("、"));
-				}
-				if (titleMap.containsKey(title)) {
-					titleId = titleMap.get(title);
-				} 
-				if (StringUtils.isEmpty(titleId) && !"无".equals(title)) {
-					System.out.println("自动添加职称：" + title);
-					titleId = MyUtils.uuid();
-					addDepartList.addAll(addTitle(title, titleId));
-					titleMap.put(title, titleId);
-				}
-			}
-			
-			// 查询学历id
-			String educationId = "";
-			if (StringUtils.isNotBlank(education)) {
-				if (educationMap.containsKey(education)) {
-					educationId = educationMap.get(education);
-				} 
-				if (StringUtils.isEmpty(educationId) && !"无".equals(education)) {
-					System.out.println("自动添加学历：" + education);
-					educationId = MyUtils.uuid();
-					addDepartList.addAll(addEducation(education, educationId));
-					educationMap.put(education, educationId);
-				}
-			}
+					if (workPlace.equals("中心医院进修")) {
+						workPlace = "准格尔旗中心医院进修";
+					}
+					String areaId = "";
+					AreaCode parentArea = null;
+					String workPlaceId = "";
+					if (StringUtils.isNotBlank(county)) {
+						for (AreaCode areaCode : eedsAreaList) {
+							if (areaCode.getName().equals(county)) {
+								areaId = areaCode.getId();
+								parentArea = areaCode;
+								break;
+							}
+						}
+						if (StringUtils.isEmpty(areaId)) {
+							System.out.println("区域不存在：" + county);
+							continue;
+						}
+						
+						// 查询单位id
+						List<AreaCode> hospitalList = hospitalMap.get(areaId);
+						for (AreaCode areaCode : hospitalList) {
+							if (areaCode.getName().equals(workPlace)) {
+								workPlaceId = areaCode.getId();
+								break;
+							}
+						}
+						if (StringUtils.isEmpty(workPlaceId)) {
+							System.out.println("自动添加单位：" + parentArea.getName() + " 下的 " + workPlace);
+							// 添加新单位
+							Map map = addNewHospital(hospitalList, parentArea, workPlace);
+							addHospitalList.add(map.get("sql").toString());
+							AreaCode newAreaCode = (AreaCode)map.get("areaCode");
+							hospitalList.add(newAreaCode);
+							workPlaceId = newAreaCode.getId();
+						}
+					}
+					
+					// 查询科室id
+					if (depart.contains("、")) {
+						depart = depart.substring(0, depart.indexOf("、"));
+					}
+					if (depart.contains("-->")) {
+						depart = depart.substring(depart.lastIndexOf("-->") + 3);
+					}
+					String deptId = "";
+					if (deptMap.containsKey(depart)) {
+						deptId = deptMap.get(depart);
+					} else {
+						for (Entry<String, String> entry : deptMap.entrySet()) {
+							String deptName = entry.getKey();
+							if (deptName.contains(depart)) {
+								deptId = entry.getValue();
+								break;
+							}
+						}
+					}
+					if (StringUtils.isEmpty(deptId) && !"无".equals(depart)) {
+						System.out.println("自动添加科室：" + depart);
+						deptId = MyUtils.uuid();
+						addDepartList.addAll(addDepartment(depart, deptId));
+						deptMap.put(depart, deptId);
+					}
+					
+					// 查询职称id
+					String titleId = "";
+					if (StringUtils.isNotBlank(title) && !title.equals("樊圆圆")) {
+						if (title.contains("（")) {
+							title = title.substring(0, title.indexOf("（"));
+						}
+						if (title.contains("、")) {
+							title = title.substring(0, title.indexOf("、"));
+						}
+						if (title.contains("执业医")) {
+							title = "执业医师";
+						}
+						if (title.contains("助理医")) {
+							title = "助理医师";
+						}
+						if (title.contains("副主任医")) {
+							title = "副主任医师";
+						} else if (title.contains("主任医")) {
+							title = "主任医师";
+						}
+						if (title.contains("主治医")) {
+							title = "主治医师";
+						}
+						if (title.equals("正高")) {
+							title = "正高级";
+						}
+						if (title.equals("副高")) {
+							title = "副高级";
+						}
+						if (title.equals("高级工")) {
+							title = "高级工程师";
+						} 
+						if (title.contains("\n")) {
+							title = title.replaceAll("\n", "");
+						}
+						if (titleMap.containsKey(title)) {
+							titleId = titleMap.get(title);
+						} 
+						if (StringUtils.isEmpty(titleId) && !"无".equals(title)) {
+							System.out.println("自动添加职称：" + title);
+							titleId = MyUtils.uuid();
+							addDepartList.addAll(addTitle(title, titleId));
+							titleMap.put(title, titleId);
+						}
+					}
+					
+					// 查询学历id
+					String educationId = "";
+					if (StringUtils.isNotBlank(education)) {
+						if (education.contains("（")) {
+							education = education.substring(0, education.indexOf("（"));
+						}
+						if (education.contains("大学本科") || education.contains("大学专科")) {
+							education = education.replace("大学", "");
+						}
+						if (education.equals("大学")) {
+							education = "本科";
+						}
+						if (education.equals("大学大专")) {
+							education = "专科";
+						}
+						if (education.contains("等专科")) {
+							education = "专科";
+						}
+						if (education.contains("硕士研究生")) {
+							education = "硕士";
+						}
+						if (educationMap.containsKey(education)) {
+							educationId = educationMap.get(education);
+						} 
+						if (StringUtils.isEmpty(educationId) && !"无".equals(education)) {
+							System.out.println("自动添加学历：" + education);
+							educationId = MyUtils.uuid();
+							addDepartList.addAll(addEducation(education, educationId));
+							educationMap.put(education, educationId);
+						}
+					}
 
-			// 产生sql语句
-			String sql = "update pe_trainee pt set pt.county='" + county + "',pt.fk_area_id='" + areaId + "',pt.companyGroup='" + workPlaceId 
-					+ "',pt.department='" + deptId + "',pt.career='" + titleId + "',pt.EDUCATION='" + education + "',pt.presentMajor='" + major + "' where pt.ID='" + ptId + "';";
-			result.add(sql);
+					// 产生sql语句
+					String sql = "update pe_trainee pt set pt.TRUE_NAME='" + name + "',pt.CARD_NO='" + idcard + "',pt.MOBILE='" + mobile + "',pt.county='" + county + "',pt.fk_area_id='" + areaId + "',pt.companyGroup='" + workPlaceId 
+							+ "',pt.department='" + deptId + "',pt.career='" + titleId + "',pt.EDUCATION='" + education + "',pt.presentMajor='" + major + "' where pt.ID='" + ptId + "';";
+					result.add(sql);
+					
+					// 更新用户中心绑定手机
+					sql = "update ";
+					updateSsoMobile.add(sql);
+				}
+			}
 		}
+		
 		String path0 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/";
 		String path1 = path0 + "addDepart.sql";
 		String path2 = path0 + "addHospital.sql";
