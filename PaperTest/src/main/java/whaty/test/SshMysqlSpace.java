@@ -25,7 +25,7 @@ public class SshMysqlSpace {
 	
 	static String sshhost = "210.14.140.85";  //远程服务器地址
 	static String sshusername = "tyxl";       //服务器用户名
-	static String sshPassword = "OeJx7dw50f"; //服务器密码
+	static String sshPassword = "5eqbFz7Q0t"; //服务器密码
 	static int sshport = 22;
 	public static Connection conn = null;
 	

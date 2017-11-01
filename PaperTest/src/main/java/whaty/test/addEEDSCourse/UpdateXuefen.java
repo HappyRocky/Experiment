@@ -2,14 +2,11 @@ package whaty.test.addEEDSCourse;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hpsf.ClassID;
 
 import utils.DateUtils;
 import whaty.test.MyUtils;
@@ -33,7 +30,8 @@ public class UpdateXuefen {
 		List<String> updateXuefenList = new ArrayList<>();
 		String sql = "SELECT\n" +
 				"	pt.id,\n" +
-				"	sum(ele.result0),\n" +
+//				"	sum(ele.result0),\n" +
+				"	count(ele.id),\n" +
 				"	max(ele.ELECTIVE_DATE)\n" +
 				"FROM\n" +
 				"	pe_tch_elective ele\n" +
@@ -41,10 +39,11 @@ public class UpdateXuefen {
 				"AND poc.FK_TRAIN_CLASS = '" + classId + "'\n" +
 				"JOIN pe_trainee pt ON pt.id = ele.FK_TRAINEE_ID\n" +
 				"WHERE\n" +
-				"	(\n" +
-				"		pt.LOGIN_ID LIKE 'erds@%'\n" +
-				"		OR pt.LOGIN_ID LIKE 'dltq@%'\n" +
-				"	)\n" +
+//				"	(\n" +
+//				"		pt.LOGIN_ID LIKE 'erds@%'\n" +
+//				"		OR pt.LOGIN_ID LIKE 'dltq@%'\n" +
+//				"	)\n" +
+				" pt.LOGIN_ID in ('erds@1836.com','erds@5592.com','erds@3220.com','erds@2069.com','erds@2070.com','erds@2699.com','erds@2667.com') "+
 				"AND ele.SCORE = '100.0'\n" +
 				"AND ele.result0 IS NOT NULL\n" +
 				"GROUP BY\n" +
@@ -79,18 +78,21 @@ public class UpdateXuefen {
 			}
 			
 			// 插入证书
-			if (StringUtils.isBlank(certId)) { // 没有证书
-				String insertSql =  generalAddEEDSCertificate(ptId, classId, xuefen, xueshi, createDate,year);
-				if (StringUtils.isBlank(insertSql)) {
-					System.out.println("生成证书编号失败：ptId=" + ptId);
-				} else {
-//					SshMysqlWebtrn.executeBySQL(insertSql); // 直接执行，后续生成证书编号还需要查询
+			if (oldXuefen >= 25) {
+				if (StringUtils.isBlank(certId)) { // 没有证书
+					String insertSql =  generalAddEEDSCertificate(ptId, classId, xuefen, xueshi, createDate,year);
+					if (StringUtils.isBlank(insertSql)) {
+						System.out.println("生成证书编号失败：ptId=" + ptId);
+					} else {
+						SshMysqlWebtrn.executeBySQL(insertSql); // 直接执行，后续生成证书编号还需要查询
+//						updateXuefenList.add(insertSql);
+					}
+				} else if (oldCertXuefen != oldXuefen) { // 证书学分不一致
+					String insertSql = "update pr_student_certificate set LEARNSCORE='" + oldXuefen + "',LEARNTIME='" + oldXuefen * 3 + "' where id='" + certId + "';";
 					updateXuefenList.add(insertSql);
-				}
-			} else if (oldCertXuefen != oldXuefen) { // 证书学分不一致
-				String insertSql = "update pr_student_certificate set LEARNSCORE='" + oldXuefen + "',LEARNTIME='" + oldXuefen * 3 + "' where id='" + certId + "';";
-				updateXuefenList.add(insertSql);
-			} 
+				} 
+			}
+			
 			
 			if (i % 100 == 0) {
 				System.out.println("已完成第" + i + "个");
@@ -164,15 +166,15 @@ public class UpdateXuefen {
 	public String createCertificateNo(String siteId, String prefix, String currentYear) {
 		String code = "";
 		// 查询数据库中最大的证书编号
-//		String sql = " select IFNULL(MAX(`CertificateNo`),0) as `CODE` from pr_student_certificate  where FK_SITE_ID ='" + siteId
-//				+ "' and CertificateNo like '" + prefix + "%' ";
-//		try {
-//			List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
-//			code = String.valueOf(list.get(0)[0]);
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-		code = maxCertCode;
+		String sql = " select IFNULL(MAX(`CertificateNo`),0) as `CODE` from pr_student_certificate  where FK_SITE_ID ='" + siteId
+				+ "' and CertificateNo like '" + prefix + "%' ";
+		try {
+			List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
+			code = String.valueOf(list.get(0)[0]);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+//		code = maxCertCode;
 		// 计算证书编号
 		String newCode = "";
 		if ("0".equals(code)) {

@@ -173,7 +173,7 @@ public class AddStudyRecordOld {
 					"		'1', " +
 					"		'" + modifyTime + "', " +
 					"		'0' " +
-					"	) ON DUPLICATE KEY UPDATE score1=values(score1);";
+					"	) ON DUPLICATE KEY UPDATE modifyDate=values(modifyDate);";
 			insertSpaceSqlList.add(insertSql);
 			
 		}

@@ -10,7 +10,7 @@ public class TestSync implements Runnable {
 	int b = 100;
 
 	synchronized void m1() throws InterruptedException {
-		b = 1000;
+		this.b = 1000;
 		Thread.sleep(500); // 6
 		System.out.println("b=" + b);
 	}
