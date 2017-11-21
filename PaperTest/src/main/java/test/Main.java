@@ -3,6 +3,8 @@ package test;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import utils.FileUtils;
 
 
@@ -14,12 +16,22 @@ import utils.FileUtils;
  */
 public class Main {
 	public static void main(String[] args) throws Exception {
-		Map<String, String> paramsMap = new HashMap<String, String>();
-		paramsMap.put("srcExambatch", "1");
-		paramsMap.put("targetExambatch", "2");
-		paramsMap.put("token", "3");		
-		System.out.println("" + paramsMap.toString());
+		String str = "<>\\;\\";
+		
+		System.out.println(str);
+		System.out.println(toSql(str));
 		System.exit(0);
+	}
+	
+	public static String toSql(String str){
+		if (StringUtils.isBlank(str)) {
+			return str;
+		}
+		str = str.replaceAll("'", "\\\\'").replaceAll("#", "\\\\#").replaceAll("-", "\\\\-");
+		if (str.endsWith("\\")) {
+			str = str + " ";
+		}
+		return str;
 	}
 }
 

@@ -13,7 +13,7 @@ import utils.DateUtils;
 
 /** 
  * @className:UpdateERDSStudentInfo.java
- * @classDescription:
+ * @classDescription:根据表格的学员信息，与数据库中的学员进行比对，输出loginId
  * @author:yourname
  * @createTime:2017年8月29日
  */
@@ -22,14 +22,14 @@ public class getERDSStudentLoginId {
 	private Map<String, String> keyLoginIdMap;
 	
 	public String generateKey(String name ,String cardNo ,String mobile ,String workPlace ,String dept ,String major ,String education){
-		return name + mobile;
+		return name + workPlace;
 	}
 	
 	public void outputLoginIdList(){
 		init();
 		List<String> result = new ArrayList<>();
 //		String fileName = "1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2_用户名";
-		String fileName = "1-达拉特旗人民医院北大医学网花名册2-1_用户名";
+		String fileName = "杭锦旗专业技术人员信息汇总表-2017年";
 		String path = "F:/whaty/医爱数据库迁移/" + fileName + ".xls";
 		List<String[]> lineList = MyUtils.readExcel(path, 1);
 		Set<String> repeatLoginIdSet = new HashSet<>(); // 已经使用过的loginId
@@ -95,9 +95,9 @@ public class getERDSStudentLoginId {
 				"WHERE\n" +
 				"	pt.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9'\n" +
 				"AND (\n" +
-				"	pt.LOGIN_ID LIKE 'erds2017@%'\n" +
+				"	pt.LOGIN_ID LIKE 'erds@%'\n" +
 //				"	OR pt.LOGIN_ID LIKE 'dltq@%'\n" +
-				") and pt.county='达拉特旗'";
+				") ";
 		List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : list) {
 			String loginId = MyUtils.valueOf(objects[0]);

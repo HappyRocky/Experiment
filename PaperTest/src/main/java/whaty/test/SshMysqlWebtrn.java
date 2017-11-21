@@ -9,7 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -19,41 +21,73 @@ import com.jcraft.jsch.Session;
  */
 @SuppressWarnings("all")
 public class SshMysqlWebtrn {
-	static int lport = 3308;                  //本地端口  映射到本地的端口
-	static String host = "192.168.148.51";    //远程MySQL服务器  
-	static int rport = 33305;                 //远程MySQL服务端口 
+	static String url2 = "jdbc:mysql://192.168.20.51:33306/webtrn?useUnicode=true&characterEncoding=UTF-8";
+	static String username2 = "webtrn";
+	static String password2 = "X55lhVAc"; 
 	
-	static String sshhost = "210.14.140.85";  //远程服务器地址
-	static String sshusername = "webtrn";       //服务器用户名
-	static String sshPassword = "tb97lzZfGe"; //服务器密码
-	static int sshport = 22;
 	public static Connection conn = null;
 	
-	static String filePath = "E:\\delsql.txt";
-	static String logPath = "E:\\log.txt";
-	static List delList;
-	
 	public static void main(String[] args) {
-		String ITEM_PERCENT = "92";
-		String ELECTIVE_ID = "e090100472894a00b05ba6b33047749c";
-		
-		String sql = "select * from pe_trainee where id=''";
-		List<Object[]> result = getBySQL(sql);
-		System.out.println("运行结果=" + result + "，sql=" + sql);
-		
+		Map conditions = new HashMap<>();
+		conditions.put("traineeId", "a8a7e7b8db5046d58e713520a8b02939");
+		conditions.put("classId", "4028aba95cf6acd4015cf6d88cd3002f");
+		conditions.put("siteId", "ff80808155de17270155de1ecca20448");
+		conditions.put("currentId", "4028aba95cf6acd4015cf6d957720057");
+		System.out.println(closeNextAllModule(conditions));
 	} 
+	
+	public static Map<String, String> closeNextAllModule(Map conditions) {
+		String traineeId = String.valueOf(conditions.get("traineeId"));
+		String classId = String.valueOf(conditions.get("classId"));
+		String siteId = String.valueOf(conditions.get("siteId"));
+		String currentId = String.valueOf(conditions.get("currentId"));
+		Map<String, String> map = new HashMap<String, String>();
+		map.put("info", "关闭后续流程失败");
+		map.put("success", "false");
+		String sql = " SELECT petm.id AS moduleId FROM pe_training_module petm, pe_training_setting pts WHERE petm.pe_project_base_id = pts.ID  AND petm.flag_active='1' AND petm.pe_training_class_id = '"
+				+ classId + "'  ORDER BY petm.code ASC ";
+		try {
+			List list = getBySQL(sql);
+			String nextModuleIdCondition = "";
+			int size = list.size();
+			boolean hasFindCurrentId = false; // 是否遍历到了当前id，如果是，则开始累加后续所有id
+			for (int i = 0; i < size; i++) {
+				Object[] obs = (Object[])list.get(i);
+				String moduleId = MyUtils.valueOf(obs[0]);
+				if (moduleId.equals(currentId)) { // 遍历到了当前id
+					hasFindCurrentId = true;
+					continue;
+				}
+				if (hasFindCurrentId) { // 属于后续id
+					nextModuleIdCondition += ",'" + moduleId + "'";
+				}
+			}
+			if (nextModuleIdCondition.startsWith(",")) {
+				nextModuleIdCondition = nextModuleIdCondition.substring(1);
+				String deleteSql = " delete from pr_training_module where fk_module_id in (" + nextModuleIdCondition + ") and fk_trainee_id='"
+						+ traineeId + "'";
+				executeBySQL(deleteSql);
+				map.put("info", "添加/修改下一个流程成功");
+				map.put("success", "true");
+			} else {
+				map.put("info", "已经是最后一个流程无需开启下一个流程。");
+				map.put("success", "true");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			map.put("info", "添加/修改下一个流程失败");
+			map.put("success", "false");
+		}
+		return map;
+	}
 
 	public static synchronized Connection getConn(){
 		try {
 			if(conn != null ){
 				return conn;
 			}
-			//1、加载驱动  
 			Class.forName("com.mysql.jdbc.Driver");
-			//2、创建连接  
-			go();
-			//映射到本地的服务
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/webtrn", "webtrn", "X55lhVAc");
+			conn = DriverManager.getConnection(url2, username2, password2);
 		} catch (Exception e) {
 		}
 		return conn;
@@ -112,7 +146,7 @@ public class SshMysqlWebtrn {
 	    return list;
 	}
 	
-	public static List<Object[]> getBySQL(String  sql) {
+	public static List<Object[]> getBySQL(String sql) {
 		return queryBySQL(sql);
 	}
 	
@@ -146,25 +180,6 @@ public class SshMysqlWebtrn {
 		}
 	}
 	
-	/**
-	 * 获得ssh链接
-	 */
-	public static void go() {
-		try {
-			JSch jsch = new JSch();
-			Session session = jsch.getSession(sshusername, sshhost, sshport); // 端口账号
-			session.setPassword(sshPassword);
-			session.setConfig("StrictHostKeyChecking", "no");
-			session.connect();
-			//System.out.println(session.getServerVersion());	//这里打印SSH服务器版本信息  
-			int assinged_port = session.setPortForwardingL(lport, host, rport);//端口映射 转发
-		} catch (Exception e) {
-			//e.printStackTrace();
-		}
-	}
-	
-	
-
 	/**
 	 * 写入需要删除的数据
 	 */
@@ -211,8 +226,4 @@ public class SshMysqlWebtrn {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
 }

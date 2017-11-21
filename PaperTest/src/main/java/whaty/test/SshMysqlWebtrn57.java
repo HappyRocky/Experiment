@@ -19,6 +19,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
 
+
 /**
  * 连接57webtrn的Mysql，2号库
  */
@@ -35,161 +36,60 @@ public class SshMysqlWebtrn57 {
 	public static void main(String[] args) {
 		SshMysqlWebtrn57 ssh = new SshMysqlWebtrn57();
 		Map conditions = new HashMap<>();
-		conditions.put("loginId", "zd7969@phve.cn");
-		conditions.put("siteCode", "yiai");
-		conditions.put("parentId", "c10793526b5c11e683b100251113d11d");
-		conditions.put("areaName", "测试医院6");
+		conditions.put("traineeId", "a8a7e7b8db5046d58e713520a8b02939");
+		conditions.put("classId", "4028aba95cf6acd4015cf6d88cd3002f");
+		conditions.put("siteId", "ff80808155de17270155de1ecca20448");
+		conditions.put("currentId", "4028aba95cf6acd4015cf6d957720057");
 		
-		System.out.println(ssh.addArea(conditions));
+		System.out.println(ssh.closeNextAllModule(conditions));
 		
 		System.exit(0);
 	} 
 	
-	public Map<String, String> addArea(Map conditions) {
+	public Map<String, String> closeNextAllModule(Map conditions) {
+		String traineeId = String.valueOf(conditions.get("traineeId"));
+		String classId = String.valueOf(conditions.get("classId"));
+		String siteId = String.valueOf(conditions.get("siteId"));
+		String currentId = String.valueOf(conditions.get("currentId"));
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("info", "添加失败");
-		map.put("status", "false");
-		String parentId = (String) conditions.get("parentId");
-		String areaName = (String) conditions.get("areaName");
-		String loginId = (String) conditions.get("loginId");
-		String siteCode = (String) conditions.get("siteCode");
-
-		// 校验参数
-		if (StringUtils.isBlank(parentId) || StringUtils.isBlank(areaName)) {
-			map.put("info", "参数缺失");
-			return map;
-		}
-		
-		// 查询 siteid
-		StringBuffer siteSqlSb = new StringBuffer();
-		siteSqlSb.append(" SELECT ");
-		siteSqlSb.append(" 	ps.ID, ");
-		siteSqlSb.append(" 	a.manager_name ");
-		siteSqlSb.append(" FROM ");
-		siteSqlSb.append(" 	pe_site ps ");
-		siteSqlSb.append(" JOIN pe_trainee pt ON pt.FK_SITE_ID = ps.id ");
-		siteSqlSb.append(" LEFT JOIN pe_area a ON a.manager_name = pt.LOGIN_ID and a.fk_site_id=ps.id ");
-		siteSqlSb.append(" WHERE ");
-		siteSqlSb.append(" 	ps.`CODE` = '" + siteCode + "' ");
-		siteSqlSb.append(" AND pt.LOGIN_ID = '" + loginId + "' ");
-		List<Object[]> siteList = new ArrayList();
+		map.put("info", "关闭后续流程失败");
+		map.put("success", "false");
+		String sql = " SELECT petm.id AS moduleId FROM pe_training_module petm, pe_training_setting pts WHERE petm.pe_project_base_id = pts.ID  AND petm.flag_active='1' AND petm.pe_training_class_id = '"
+				+ classId + "'  ORDER BY petm.code ASC ";
 		try {
-			siteList = this.getGeneralService().getBySQL(siteSqlSb.toString());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-		}
-		if (CollectionUtils.isEmpty(siteList)) {
-			map.put("info", "查询站点学员失败");
-			return map;
-		}
-		String siteId = siteList.get(0)[0].toString();
-		if (siteList.get(0)[1] != null && StringUtils.isNotBlank(siteList.get(0)[1].toString())) {
-			map.put("info", "您之前手动添加过工作单位，每位用户只允许添加一次");
-			return map;
-		}
-		
-		// 查询出所有子节点
-		StringBuffer queryChildSb = new StringBuffer();
-		List<Object[]> childList = new ArrayList<Object[]>();
-		queryChildSb.append(" SELECT ");
-		queryChildSb.append(" 	parent.`level` as parentLevel, ");
-		queryChildSb.append(" 	parent.level_code as parentLavelCode, ");
-		queryChildSb.append(" 	a.`name` as childName, ");
-		queryChildSb.append(" 	a.`level` as childLevel, ");
-		queryChildSb.append(" 	a.level_code as childLevelCode");
-		queryChildSb.append(" FROM ");
-		queryChildSb.append(" 	pe_area parent ");
-		queryChildSb.append(" LEFT JOIN pe_area a ON a.fk_parent_id = parent.id ");
-		queryChildSb.append(" WHERE ");
-		queryChildSb.append(" 	parent.id = '" + parentId + "' ");
-		queryChildSb.append(" AND parent.fk_site_id = '" + siteId + "' ");
-		try {
-			childList = this.getGeneralService().getBySQL(queryChildSb.toString());
-		} catch (Exception e1) {
-			e1.printStackTrace();
-			map.put("info", "查询区域信息失败");
-			return map;
-		}
-		if (CollectionUtils.isEmpty(childList)) {
-			map.put("info", "区域不存在");
-			return map;
-		}
-		if (childList.get(0)[0] == null || childList.get(0)[1] == null) {
-			map.put("info", "父节点信息缺失");
-			return map;
-		}
-
-		int levelCodeMax = 0; // levelCode的最后层级的最大值
-		for (Object[] objects : childList) {
-			String curName = String.valueOf(objects[2]);
-			if (areaName.equals(curName)) { // 名称已存在
-				map.put("info", "添加失败，" + areaName + "已存在");
-				return map;
-			}
-			String curLevelCode = String.valueOf(objects[4]);
-			if (StringUtils.isNotBlank(curLevelCode)) { // 更新 levelCodeMax
-				if (curLevelCode.endsWith("/")) { // 去掉最后一个斜线
-					curLevelCode = curLevelCode.substring(0, curLevelCode.length() - 1);
+			List list = this.getGeneralService().getBySQL(sql);
+			String nextModuleIdCondition = "";
+			int size = list.size();
+			boolean hasFindCurrentId = false; // 是否遍历到了当前id，如果是，则开始累加后续所有id
+			for (int i = 0; i < size; i++) {
+				String moduleId = String.valueOf(list.get(i));
+				if (moduleId.equals(currentId)) { // 遍历到了当前id
+					hasFindCurrentId = true;
+					continue;
 				}
-				int idx = curLevelCode.lastIndexOf("/");
-				if (idx >= 0) {
-					int lastCode = Integer.parseInt(String.valueOf(curLevelCode.substring(idx + 1)));
-					levelCodeMax = Math.max(levelCodeMax, lastCode);
+				if (hasFindCurrentId) { // 属于后续id
+					nextModuleIdCondition += ",'" + moduleId + "'";
 				}
 			}
-		}
-		int newLevel = Integer.valueOf(childList.get(0)[0].toString()) + 1;
-		if (newLevel != 4) {
-			map.put("info", "只允许在县级下添加医院");
-			return map;
-		}
-		String parentLevelCode = childList.get(0)[1].toString();
-		if (!parentLevelCode.endsWith("/")) {
-			parentLevelCode = parentLevelCode + "/";
-		}
-		String newLevelCode = parentLevelCode + (levelCodeMax + 1) + "/";
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
-		int rand = (int) (Math.random() * 9000) + 1000;// 产生1000-9999的随机数
-		String newCode = sdf.format(new Date()) + rand;
-		String newId = UUID.randomUUID().toString().replace("-", "");
-		StringBuffer insertSb = new StringBuffer();
-		insertSb.append(" INSERT INTO `pe_area` ( ");
-		insertSb.append(" 	`id`, ");
-		insertSb.append(" 	`name`, ");
-		insertSb.append(" 	`code`, ");
-		insertSb.append(" 	`createDate`, ");
-		insertSb.append(" 	`level`, ");
-		insertSb.append(" 	`level_code`, ");
-		insertSb.append(" 	`fk_parent_id`, ");
-		insertSb.append(" 	`fk_site_id`, ");
-		insertSb.append(" 	`manager_name` ");
-		insertSb.append(" ) VALUES ( ");
-		insertSb.append(" 		'" + newId + "', ");
-		insertSb.append(" 		'" + areaName + "', ");
-		insertSb.append(" 		'" + newCode + "', ");
-		insertSb.append(" 		NOW(), ");
-		insertSb.append(" 		'" + newLevel + "', ");
-		insertSb.append(" 		'" + newLevelCode + "', ");
-		insertSb.append(" 		'" + parentId + "', ");
-		insertSb.append(" 		'" + siteId + "', ");
-		insertSb.append(" 		'" + loginId + "' )");
-		try {
-			int result = this.getGeneralService().executeBySQL(insertSb.toString());
-			if (result < 1) {
-				map.put("info", "插入区域信息失败，请稍后再试");
-				return map;
+			if (nextModuleIdCondition.startsWith(",")) {
+				nextModuleIdCondition = nextModuleIdCondition.substring(1);
+				String deleteSql = " delete from pr_training_module where fk_module_id in (" + nextModuleIdCondition + ") and fk_trainee_id='"
+						+ traineeId + "'";
+				this.getGeneralService().executeBySQL(deleteSql);
+				map.put("info", "添加/修改下一个流程成功");
+				map.put("success", "true");
+			} else {
+				map.put("info", "已经是最后一个流程无需开启下一个流程。");
+				map.put("success", "true");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			map.put("info", "插入区域信息失败，请稍后再试");
-			return map;
+			map.put("info", "添加/修改下一个流程失败");
+			map.put("success", "false");
 		}
-		map.put("info", "添加成功");
-		map.put("status", "true");
-		map.put("areaId", newId);
-		map.put("areaName", areaName);
 		return map;
 	}
+	
 	
 	public static synchronized Connection getConn(){
 		try {

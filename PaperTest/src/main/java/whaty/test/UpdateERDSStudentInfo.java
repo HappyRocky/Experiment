@@ -16,7 +16,7 @@ import whaty.test.addAreaCode.AreaCode;
 
 /** 
  * @className:UpdateERDSStudentInfo.java
- * @classDescription:
+ * @classDescription:根据表格，对科室、手机号、身份证、专业等信息进行更新
  * @author:yourname
  * @createTime:2017年8月29日
  */
@@ -98,7 +98,7 @@ public class UpdateERDSStudentInfo {
 	public void generalUpdateSqlList(){
 		getEEDSAreaList();
 		System.out.println("查询基础信息完毕");
-		String[] fileNames = {"2-准格尔旗大路医院-用户名","2-准格尔旗疾控中心-用户名","2-准格尔旗继教补报名单-用户名","2-准旗合管办-用户名","2-准旗人民医院-用户名","2-准旗中蒙医院-用户名","2-准旗中心医院-用户名"};
+		String[] fileNames = {"杭锦旗专业技术人员信息汇总表-2017年"};
 		List<String> result = new ArrayList<>();
 		List<String> addDepartList = new ArrayList<>();
 		List<String> addHospitalList = new ArrayList<>();
@@ -106,8 +106,11 @@ public class UpdateERDSStudentInfo {
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2.xls";
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗人民医院北大医学网花名册2-1.xls";
 		for (String fileName : fileNames) {
-			String path = "F:/whaty/医爱数据库迁移/2-准格尔旗2017-用户名/" + fileName + ".xls";
+			String path = "F:/whaty/医爱数据库迁移/" + fileName + ".xls";
 			for (int j = 1; j <= 3; j++) {
+				if (j != 1) {
+					continue;
+				}
 				List<String[]> lineList = MyUtils.readExcel(path, j);
 				for (int i = 0; i < lineList.size(); i++) {
 					String[] strs = lineList.get(i);
@@ -120,7 +123,7 @@ public class UpdateERDSStudentInfo {
 					String education = MyUtils.valueOf(strs[7]).trim().replaceAll(" ", "").replaceAll("　", "");
 					String major = MyUtils.valueOf(strs[8]).trim().replaceAll(" ", "").replaceAll("　", "");
 					String mobile = MyUtils.valueOf(strs[9]).trim().replaceAll(" ", "").replaceAll("　", "");
-					String county = "准格尔旗";
+					String county = "杭锦旗";
 					
 					if (StringUtils.isBlank(loginId)) {
 						continue;
@@ -138,9 +141,6 @@ public class UpdateERDSStudentInfo {
 					// 查询区域id
 					if (workPlace.contains("准旗")) {
 						workPlace = workPlace.replace("准旗", "准格尔旗");
-					}
-					if (workPlace.equals("中心医院进修")) {
-						workPlace = "准格尔旗中心医院进修";
 					}
 					String areaId = "";
 					AreaCode parentArea = null;
@@ -167,6 +167,14 @@ public class UpdateERDSStudentInfo {
 							}
 						}
 						if (StringUtils.isEmpty(workPlaceId)) {
+							for (AreaCode areaCode : hospitalList) {
+								if (areaCode.getName().contains(workPlace) || workPlace.contains(areaCode.getName())) {
+									workPlaceId = areaCode.getId();
+									break;
+								}
+							}
+						}
+						if (StringUtils.isEmpty(workPlaceId)) {
 							System.out.println("自动添加单位：" + parentArea.getName() + " 下的 " + workPlace);
 							// 添加新单位
 							Map map = addNewHospital(hospitalList, parentArea, workPlace);
@@ -184,6 +192,36 @@ public class UpdateERDSStudentInfo {
 					if (depart.contains("-->")) {
 						depart = depart.substring(depart.lastIndexOf("-->") + 3);
 					}
+					if (depart.contains("医保")) {
+						depart = "医保科";
+					}
+					if (depart.contains("B超")) {
+						depart = "B超室";
+					}
+					if (depart.contains("心电图")) {
+						depart = "心电图室";
+					}
+					if (depart.contains("CT")) {
+						depart = "CT室";
+					}
+					if (depart.contains("总务后勤科")) {
+						depart = "后勤科";
+					}
+					if (depart.contains("血液透析科")) {
+						depart = "血液透析室";
+					}
+					if (depart.contains("妇科")) {
+						depart = "妇科";
+					}
+					if (depart.contains("挂号")) {
+						depart = "挂号";
+					}
+					if (depart.contains("放射")) {
+						depart = "放射科";
+					}
+					if (depart.contains("接种预防")) {
+						depart = "预防接种";
+					}
 					String deptId = "";
 					if (deptMap.containsKey(depart)) {
 						deptId = deptMap.get(depart);
@@ -196,6 +234,30 @@ public class UpdateERDSStudentInfo {
 							}
 						}
 					}
+					
+					// 如果没有匹配到，则把修改最后一个字再匹配一次
+					if (StringUtils.isEmpty(deptId)) {
+						String secondDept = "";
+						if (depart.endsWith("科")) {
+							secondDept = depart.substring(0, depart.length() - 1) + "室";
+						} else if (depart.endsWith("室")) {
+							secondDept = depart.substring(0, depart.length() - 1) + "科";
+						}
+						if (StringUtils.isNotBlank(secondDept)) {
+							if (deptMap.containsKey(secondDept)) {
+								deptId = deptMap.get(secondDept);
+							} else {
+								for (Entry<String, String> entry : deptMap.entrySet()) {
+									String deptName = entry.getKey();
+									if (deptName.contains(secondDept)) {
+										deptId = entry.getValue();
+										break;
+									}
+								}
+							}
+						}
+					}
+					
 					if (StringUtils.isEmpty(deptId) && !"无".equals(depart)) {
 						System.out.println("自动添加科室：" + depart);
 						deptId = MyUtils.uuid();
@@ -211,6 +273,9 @@ public class UpdateERDSStudentInfo {
 						}
 						if (title.contains("、")) {
 							title = title.substring(0, title.indexOf("、"));
+						}
+						if (title.contains("，")) {
+							title = title.substring(0, title.indexOf("，"));
 						}
 						if (title.contains("执业医")) {
 							title = "执业医师";
@@ -235,6 +300,30 @@ public class UpdateERDSStudentInfo {
 						if (title.equals("高级工")) {
 							title = "高级工程师";
 						} 
+						if (title.equals("初级医士")) {
+							title = "初级医师";
+						}
+						if (title.equals("无证")) {
+							title = "无职称";
+						}
+						if (title.equals("员级")) {
+							title = "研究员";
+						}
+						if (title.equals("执业中西医医师")) {
+							title = "中西医结合医师";
+						}
+						if (title.equals("中医执业药师")) {
+							title = "中医药师";
+						}
+						if (title.equals("执业蒙医医师")) {
+							title = "执业医师";
+						}
+						if (title.equals("检验技士")) {
+							title = "检验师";
+						}
+						if (title.contains("放射医学技术")) {
+							title = "技术员";
+						}
 						if (title.contains("\n")) {
 							title = title.replaceAll("\n", "");
 						}
@@ -264,6 +353,9 @@ public class UpdateERDSStudentInfo {
 						if (education.equals("大学大专")) {
 							education = "专科";
 						}
+						if (education.contains("中专技校")) {
+							education = "专科";
+						}
 						if (education.contains("等专科")) {
 							education = "专科";
 						}
@@ -285,10 +377,9 @@ public class UpdateERDSStudentInfo {
 					String sql = "update pe_trainee pt set pt.TRUE_NAME='" + name + "',pt.CARD_NO='" + idcard + "',pt.MOBILE='" + mobile + "',pt.county='" + county + "',pt.fk_area_id='" + areaId + "',pt.companyGroup='" + workPlaceId 
 							+ "',pt.department='" + deptId + "',pt.career='" + titleId + "',pt.EDUCATION='" + education + "',pt.presentMajor='" + major + "' where pt.ID='" + ptId + "';";
 					result.add(sql);
-					
-					// 更新用户中心绑定手机
-					sql = "update ";
-					updateSsoMobile.add(sql);
+					// 去掉其他学员的重复身份证
+					sql = "update pe_trainee pt set pt.qqNumber=pt.CARD_NO,pt.CARD_NO = null where pt.ID != '" + ptId + "' and pt.CARD_NO='" + idcard + "' and pt.FK_SITE_ID='ff80808155da5b850155dddbec9404c9';";
+					result.add(sql);
 				}
 			}
 		}
