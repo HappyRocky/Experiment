@@ -23,7 +23,7 @@ public class DeleteERDS2017Student {
 				"FROM\n" +
 				"	pe_trainee u\n" +
 				"WHERE\n" +
-				"	u.LOGIN_ID LIKE 'erds2017@%' AND u.var0 IS NOT NULL\n" +
+				"	u.LOGIN_ID in ('erds@5143.com','erds@5047.com','erds@5422.com','erds@5135.com','erds@5093.com','erds@5421.com','erds@5374.com','erds@5048.com','erds@5469.com','erds@5109.com','erds@5317.com','erds@5277.com','erds@5553.com','erds@5280.com','erds@5546.com','erds@5432.com','erds@5075.com','erds@5427.com','erds@5136.com','erds@5187.com','erds@5484.com','erds@5346.com','erds@5501.com','erds@5088.com','erds@5244.com','erds@5089.com','erds@5046.com','erds@5173.com','erds@5428.com','erds@5454.com','erds@5156.com','erds@5090.com','erds@5443.com','erds@5537.com','erds@5050.com','erds@5448.com','erds@5492.com','erds@5161.com','erds@5423.com','erds@5174.com','erds@5416.com','erds@5426.com','erds@5099.com','erds@5190.com','erds@5466.com','erds@5219.com','erds@5368.com','erds@5399.com','erds@5281.com','erds@5451.com','erds@5447.com','erds@5479.com','erds@5372.com','erds@5464.com','erds@5412.com','erds@5053.com','erds@5458.com','erds@5294.com','erds@5189.com','erds@5545.com')\n" +
 				"AND u.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9'";
 		List<Object[]> list = SshMysqlWebtrn.queryBySQL(sql);
 		int num = Integer.valueOf(list.get(0)[0] == null ? "0" : list.get(0)[0].toString());
@@ -41,7 +41,7 @@ public class DeleteERDS2017Student {
 					"FROM\n" +
 					"	pe_trainee u\n" +
 					"WHERE\n" +
-					"	u.LOGIN_ID LIKE 'erds2017@%' AND u.var0 IS NOT NULL\n" +
+					"	u.LOGIN_ID in ('erds@5143.com','erds@5047.com','erds@5422.com','erds@5135.com','erds@5093.com','erds@5421.com','erds@5374.com','erds@5048.com','erds@5469.com','erds@5109.com','erds@5317.com','erds@5277.com','erds@5553.com','erds@5280.com','erds@5546.com','erds@5432.com','erds@5075.com','erds@5427.com','erds@5136.com','erds@5187.com','erds@5484.com','erds@5346.com','erds@5501.com','erds@5088.com','erds@5244.com','erds@5089.com','erds@5046.com','erds@5173.com','erds@5428.com','erds@5454.com','erds@5156.com','erds@5090.com','erds@5443.com','erds@5537.com','erds@5050.com','erds@5448.com','erds@5492.com','erds@5161.com','erds@5423.com','erds@5174.com','erds@5416.com','erds@5426.com','erds@5099.com','erds@5190.com','erds@5466.com','erds@5219.com','erds@5368.com','erds@5399.com','erds@5281.com','erds@5451.com','erds@5447.com','erds@5479.com','erds@5372.com','erds@5464.com','erds@5412.com','erds@5053.com','erds@5458.com','erds@5294.com','erds@5189.com','erds@5545.com')\n" +
 					"AND u.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9' limit " + (j * maxSize) + "," + maxSize;
 			list = SshMysqlWebtrn.queryBySQL(sql);
 			for (Object[] objects : list) {
@@ -88,7 +88,7 @@ public class DeleteERDS2017Student {
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
 			List<String> sqlList = new ArrayList<>();
 			// 查询出当前申请的信息
-			sql = "select s.ID,s.FK_SSO_USER_ID from pe_student s where s.LOGIN_ID like 'erds2017@%' and s.SITE_CODE='yiai' limit " + (j * maxSize) + "," + maxSize;
+			sql = "select s.ID,s.FK_SSO_USER_ID from pe_student s where s.LOGIN_ID in  (" + conditions + ") and s.SITE_CODE='yiai' limit " + (j * maxSize) + "," + maxSize;
 			list = SshMysqlSpace.queryBySQL(sql);
 			for (Object[] objects : list) {
 				String traineeId = (String) objects[0];

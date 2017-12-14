@@ -1,5 +1,6 @@
 package test;
 
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -16,10 +17,8 @@ import utils.FileUtils;
  */
 public class Main {
 	public static void main(String[] args) throws Exception {
-		String str = "<>\\;\\";
-		
-		System.out.println(str);
-		System.out.println(toSql(str));
+		String str = URLDecoder.decode("%26", "GBK");
+		  System.out.println(str);
 		System.exit(0);
 	}
 	

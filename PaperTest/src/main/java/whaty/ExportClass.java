@@ -15,7 +15,7 @@ import java.util.List;
 public class ExportClass {
 	private List<String> fileNamels = new ArrayList<String>();
 	private String filesp = System.getProperty("file.separator");
-	private String[] javaRoot = { "src", "test" };// 要提取class文件的目录
+	private String[] javaRoot = { "main"};// 要提取class文件的目录
 	private String currentJavaRoot;
 	private List<String> javaSourceDirectory = new ArrayList<String>();
 	private List<String> javaRootLs = new ArrayList<String>();
@@ -44,7 +44,7 @@ public class ExportClass {
 		ExportClass exportClass = new ExportClass();
 		//exportClass.exportAll("D:\\abc", "E:\\workspace\\taqpx\\taqpx_training", true);// 提取在svn提取目录下，除WebRoot
 		//exportClass.exportAll("D:\\20150610_tyut_learning", "E:\\workspace\\xm_tylearning", true);// 提取在svn提取目录下，除WebRoot
-		exportClass.exportAll("E:\\whaty\\SVN diff export", "E:\\myJava\\xm_jpc2\\xm_jpc", true);// 提取在svn提取目录下，除WebRoot
+		exportClass.exportAll("F:\\whaty\\SVN diff export", "E:\\myJava\\thtm", true);// 提取在svn提取目录下，除WebRoot
 		//exportClass.exportAll("D:\\20150330_gylearning", "E:\\workspace\\gy_learning", true);// 提取在svn提取目录下，除WebRoot
 		//exportClass.exportAll("D:\\20150611_ajbz", "E:\\workspace\\taqpx_training", true);// 提取在svn提取目录下，除WebRoot
 		//exportClass.exportAll("D:\\20150610_ajbz_cms", "E:\\workspace\\taqpx_cms", true);// 提取在svn提取目录下，除WebRoot
@@ -69,7 +69,20 @@ public class ExportClass {
 			String directoryName;
 			if (fileName.indexOf(filesp + currentJavaRoot + filesp) != -1) {
 				directoryName = fileName.substring(fileName.indexOf(this.filesp + this.currentJavaRoot + this.filesp) + this.currentJavaRoot.length() + 1);
-				javaSourceDirectory.add(directoryName);
+				for (String javaroot : javaRoot) {
+					int idx = directoryName.indexOf(javaroot);
+					if (idx >= 0) {
+						String path = directoryName.substring(idx + javaroot.length());
+						if (path.startsWith("\\java")) {
+							path = path.substring(5);
+							javaSourceDirectory.add(path);
+						} else if (path.startsWith("\\resources")) {
+							path = path.substring(10);
+							javaSourceDirectory.add(path);
+						}
+						
+					}
+				}
 			}
 			File[] t = f.listFiles();
 			for (int i = 0; i < t.length; i++) {
@@ -110,6 +123,7 @@ public class ExportClass {
 			System.out.println("不存在要提取class文件的目录！");
 			return;
 		}
+//		this.listFile(new File(srcRoot));
 		for (int i = 0; i < this.javaRootLs.size(); i++) {
 			this.currentJavaRoot = this.javaRootLs.get(i);
 			this.listFile(new File(srcRoot + this.filesp + this.currentJavaRoot));
@@ -118,7 +132,12 @@ public class ExportClass {
 		String src = null;
 		String des = null;
 		for (String fileName : fileNamels) {
-			src = projectRoot + this.filesp + "WebRoot" + this.filesp + "WEB-INF" + this.filesp + "classes" + fileName;
+			if (fileName.startsWith("\\main\\java")) {
+				fileName = fileName.substring(10);
+			} else if (fileName.startsWith("\\main\\resources")) {
+				fileName = fileName.substring(15);
+			}
+			src = projectRoot + this.filesp + "src\\main\\webapp" + this.filesp + "WEB-INF" + this.filesp + "classes" + fileName;
 			des = desRoot + this.filesp + "classes" + fileName;
 			copyFile(src, des);
 		}
@@ -133,10 +152,10 @@ public class ExportClass {
 			return;
 		}
 		for (int i = 0; i < javaRoot.length; i++) {
-			if (!"WebRoot".equalsIgnoreCase(javaRoot[i])) {
+			if (!"webapp".equalsIgnoreCase(javaRoot[i])) {
 				this.javaRootLs.add(javaRoot[i]);
 			} else {
-				System.out.println("javaRoot中不能包含WebRoot！");
+				System.out.println("javaRoot中不能包含webapp！");
 			}
 		}
 	}
@@ -157,7 +176,7 @@ public class ExportClass {
 	 * 配置文件 .xml
 	 */
 	public void exportAllByJavaRoot(String srcRoot, String projectRoot, boolean isExportOtherFile) {
-		exportAllByJavaRoot(srcRoot, projectRoot, srcRoot + this.filesp + "WebRoot" + this.filesp + "WEB-INF", isExportOtherFile);
+		exportAllByJavaRoot(srcRoot, projectRoot, srcRoot + this.filesp + "WEB-INF", isExportOtherFile);
 	}
 
 	/*
@@ -175,7 +194,7 @@ public class ExportClass {
 		File[] t = root.listFiles();
 
 		for (int i = 0; i < t.length; i++) {
-			if (!"WebRoot".equalsIgnoreCase(t[i].getName())) {
+			if (!"webapp".equalsIgnoreCase(t[i].getName())) {
 				this.javaRootLs.add(t[i].getName());
 			}
 		}
@@ -227,7 +246,7 @@ public class ExportClass {
 	private void getInnerClass(String projectRoot) {
 		for (int i = 0; i < javaSourceDirectory.size(); i++) {
 			String temp_javaSourceDirectory = javaSourceDirectory.get(i);
-			String directory = projectRoot + this.filesp + "WebRoot" + this.filesp + "WEB-INF" + this.filesp + "classes" + temp_javaSourceDirectory;
+			String directory = projectRoot + this.filesp + "src" + this.filesp + "main" + this.filesp + "webapp" + this.filesp + "WEB-INF" + this.filesp + "classes" + temp_javaSourceDirectory;
 			File temp_directory = new File(directory);
 			File[] fs = temp_directory.listFiles();
 			for (int j = 0; j < fs.length; j++) {

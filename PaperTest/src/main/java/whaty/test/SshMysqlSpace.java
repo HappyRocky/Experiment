@@ -9,7 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
@@ -19,38 +21,19 @@ import com.jcraft.jsch.Session;
  */
 @SuppressWarnings("all")
 public class SshMysqlSpace {
-	static int lport = 3307;                  //本地端口  映射到本地的端口
-	static String host = "192.168.148.52";    //远程MySQL服务器  
-	static int rport = 13332;                 //远程MySQL服务端口 
+	static String url2 = "jdbc:mysql://192.168.20.51:33306/learning_space_2_zhw?useUnicode=true&characterEncoding=UTF-8";
+	static String username2 = "tylearning_user";
+	static String password2 = "S4XwPbzWQDfq"; 
 	
-	static String sshhost = "210.14.140.85";  //远程服务器地址
-	static String sshusername = "tyxl";       //服务器用户名
-	static String sshPassword = "5eqbFz7Q0t"; //服务器密码
-	static int sshport = 22;
 	public static Connection conn = null;
 	
-	static String filePath = "E:\\delsql.txt";
-	static String logPath = "E:\\log.txt";
-	static List delList;
-	
-	public static void main(String[] args) {
-		String sql = "select count(*) from pe_student s where s.LOGIN_ID like 'erds2017@%' and s.SITE_CODE='yiai';";
-		List<Object[]> result = getBySQL(sql);
-		System.out.println("运行结果=" + result.get(0)[0] + "，sql=" + sql);
-		
-	} 
-
 	public static synchronized Connection getConn(){
 		try {
 			if(conn != null ){
 				return conn;
 			}
-			//1、加载驱动  
 			Class.forName("com.mysql.jdbc.Driver");
-			//2、创建连接  
-			go();
-			//映射到本地的服务
-			conn = DriverManager.getConnection("jdbc:mysql://localhost:"+lport+"/learning_space_2_zhw", "tylearning_user", "S4XwPbzWQDfq");
+			conn = DriverManager.getConnection(url2, username2, password2);
 		} catch (Exception e) {
 		}
 		return conn;
@@ -109,7 +92,7 @@ public class SshMysqlSpace {
 	    return list;
 	}
 	
-	public static List<Object[]> getBySQL(String  sql) {
+	public static List<Object[]> getBySQL(String sql) {
 		return queryBySQL(sql);
 	}
 	
@@ -143,25 +126,6 @@ public class SshMysqlSpace {
 		}
 	}
 	
-	/**
-	 * 获得ssh链接
-	 */
-	public static void go() {
-		try {
-			JSch jsch = new JSch();
-			Session session = jsch.getSession(sshusername, sshhost, sshport); // 端口账号
-			session.setPassword(sshPassword);
-			session.setConfig("StrictHostKeyChecking", "no");
-			session.connect();
-			//System.out.println(session.getServerVersion());	//这里打印SSH服务器版本信息  
-			int assinged_port = session.setPortForwardingL(lport, host, rport);//端口映射 转发
-		} catch (Exception e) {
-			//e.printStackTrace();
-		}
-	}
-	
-	
-
 	/**
 	 * 写入需要删除的数据
 	 */
@@ -208,8 +172,4 @@ public class SshMysqlSpace {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	
-	
 }
