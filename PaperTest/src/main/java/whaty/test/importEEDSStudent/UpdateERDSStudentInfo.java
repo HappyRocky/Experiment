@@ -1,4 +1,4 @@
-package whaty.test;
+package whaty.test.importEEDSStudent;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +12,8 @@ import java.util.UUID;
 import org.apache.commons.lang.StringUtils;
 
 import utils.DateUtils;
+import whaty.test.MyUtils;
+import whaty.test.SshMysqlWebtrn;
 import whaty.test.addAreaCode.AreaCode;
 
 /** 
@@ -98,15 +100,14 @@ public class UpdateERDSStudentInfo {
 	public void generalUpdateSqlList(){
 		getEEDSAreaList();
 		System.out.println("查询基础信息完毕");
-		String[] fileNames = {"杭锦旗专业技术人员信息汇总表-2017年"};
+		String[] fileNames = {"all"};
 		List<String> result = new ArrayList<>();
 		List<String> addDepartList = new ArrayList<>();
-		List<String> addHospitalList = new ArrayList<>();
 		List<String> updateSsoMobile = new ArrayList<>();
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2.xls";
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗人民医院北大医学网花名册2-1.xls";
 		for (String fileName : fileNames) {
-			String path = "F:/whaty/医爱数据库迁移/" + fileName + ".xls";
+			String path = "F:/whaty/医爱数据库迁移/2017--2018年度/" + fileName + ".xls";
 			for (int j = 1; j <= 3; j++) {
 				if (j != 1) {
 					continue;
@@ -123,7 +124,9 @@ public class UpdateERDSStudentInfo {
 					String education = MyUtils.valueOf(strs[7]).trim().replaceAll(" ", "").replaceAll("　", "");
 					String major = MyUtils.valueOf(strs[8]).trim().replaceAll(" ", "").replaceAll("　", "");
 					String mobile = MyUtils.valueOf(strs[9]).trim().replaceAll(" ", "").replaceAll("　", "");
-					String county = "杭锦旗";
+					
+//					String county = MyUtils.valueOf(strs[10]).trim().replaceAll(" ", "").replaceAll("　", "");
+					String county = "鄂托克旗";
 					
 					if (StringUtils.isBlank(loginId)) {
 						continue;
@@ -141,6 +144,9 @@ public class UpdateERDSStudentInfo {
 					// 查询区域id
 					if (workPlace.contains("准旗")) {
 						workPlace = workPlace.replace("准旗", "准格尔旗");
+					}
+					if (workPlace.contains("鄂旗")) {
+						workPlace = workPlace.replace("鄂旗", "鄂托克旗");
 					}
 					String areaId = "";
 					AreaCode parentArea = null;
@@ -178,7 +184,7 @@ public class UpdateERDSStudentInfo {
 							System.out.println("自动添加单位：" + parentArea.getName() + " 下的 " + workPlace);
 							// 添加新单位
 							Map map = addNewHospital(hospitalList, parentArea, workPlace);
-							addHospitalList.add(map.get("sql").toString());
+							addDepartList.add(map.get("sql").toString());
 							AreaCode newAreaCode = (AreaCode)map.get("areaCode");
 							hospitalList.add(newAreaCode);
 							workPlaceId = newAreaCode.getId();
@@ -221,6 +227,9 @@ public class UpdateERDSStudentInfo {
 					}
 					if (depart.contains("接种预防")) {
 						depart = "预防接种";
+					}
+					if (depart.equals("护师")) {
+						depart = "护士办";
 					}
 					String deptId = "";
 					if (deptMap.containsKey(depart)) {
@@ -287,9 +296,11 @@ public class UpdateERDSStudentInfo {
 							title = "副主任医师";
 						} else if (title.contains("主任医")) {
 							title = "主任医师";
-						}
-						if (title.contains("主治医")) {
+						} else if (title.equals("主治")) {
 							title = "主治医师";
+						}
+						if (title.equals("主管")) {
+							title = "主管医师";
 						}
 						if (title.equals("正高")) {
 							title = "正高级";
@@ -323,6 +334,9 @@ public class UpdateERDSStudentInfo {
 						}
 						if (title.contains("放射医学技术")) {
 							title = "技术员";
+						}
+						if (title.contains("放射")) {
+							title = "放射技师";
 						}
 						if (title.contains("\n")) {
 							title = title.replaceAll("\n", "");
@@ -386,12 +400,10 @@ public class UpdateERDSStudentInfo {
 		
 		String path0 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/";
 		String path1 = path0 + "addDepart.sql";
-		String path2 = path0 + "addHospital.sql";
 		String path3 = path0 + "updateEEDSStudentInfo.sql";
 		MyUtils.outputList(addDepartList, path1);
-		MyUtils.outputList(addHospitalList, path2);
 		MyUtils.outputList(result, path3);
-		System.out.println("需要添加的单位个数：" + addHospitalList.size() + "，需要添加的科室个数：" + addDepartList.size());
+		System.out.println("需要添加的单位、科室、职称等基础信息的个数：" + addDepartList.size());
 	}
 	
 	

@@ -1,4 +1,4 @@
-package whaty.test;
+package whaty.test.importEEDSStudent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import utils.DateUtils;
+import whaty.test.MyUtils;
+import whaty.test.SshMysqlWebtrn;
 
 /** 
  * @className:UpdateERDSStudentInfo.java
@@ -29,10 +31,11 @@ public class getERDSStudentLoginId {
 		init();
 		List<String> result = new ArrayList<>();
 //		String fileName = "1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2_用户名";
-		String fileName = "杭锦旗专业技术人员信息汇总表-2017年";
-		String path = "F:/whaty/医爱数据库迁移/" + fileName + ".xls";
+		String fileName = "all";
+		String path = "F:/whaty/医爱数据库迁移/2017--2018年度/" + fileName + ".xls";
 		List<String[]> lineList = MyUtils.readExcel(path, 1);
 		Set<String> repeatLoginIdSet = new HashSet<>(); // 已经使用过的loginId
+		List<String> newMatchedLoginIdList = new ArrayList<>(); // 新匹配到的loginId
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] strs = lineList.get(i);
 			String oldLoginId = MyUtils.valueOf(strs[0]).trim().replaceAll(" ", "").replaceAll("　", "");
@@ -65,6 +68,7 @@ public class getERDSStudentLoginId {
 						loginId = "";
 					} else {
 						repeatLoginIdSet.add(loginId);
+						newMatchedLoginIdList.add(loginId);
 					}
 				} else {
 					if (StringUtils.isNotBlank(key)) {
@@ -77,6 +81,7 @@ public class getERDSStudentLoginId {
 		String path0 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/";
 		String path3 = path0 + "erdsLogin-" + fileName + ".txt";
 		MyUtils.outputList(result, path3);
+		System.out.println("新匹配到" + newMatchedLoginIdList.size() + "人：" + newMatchedLoginIdList.toString());
 	}
 	
 	public void init(){
@@ -96,7 +101,7 @@ public class getERDSStudentLoginId {
 				"	pt.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9'\n" +
 				"AND (\n" +
 				"	pt.LOGIN_ID LIKE 'erds@%'\n" +
-//				"	OR pt.LOGIN_ID LIKE 'dltq@%'\n" +
+				"	OR pt.LOGIN_ID LIKE 'erds2017@%'\n" +
 				") ";
 		List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : list) {
