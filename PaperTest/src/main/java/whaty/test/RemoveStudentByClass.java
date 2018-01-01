@@ -21,9 +21,9 @@ public class RemoveStudentByClass {
 
 		public void removeRepeatedDltqStudent(){
 			// 读取应该留下的loginId
-			List<String> correctLoginIdList = new ArrayList<>();
-			List<String> nameList = new ArrayList<>();
-			List<String> nameMobileList = new ArrayList<>();
+			List<String> correctLoginIdList = new ArrayList<String>();
+			List<String> nameList = new ArrayList<String>();
+			List<String> nameMobileList = new ArrayList<String>();
 			String filePath = "F:/whaty/医爱数据库迁移/";
 			String[] fileNames = {"1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2_用户名.xls", "1-达拉特旗人民医院北大医学网花名册2-1_用户名.xls"};
 			for (String fileName : fileNames) {
@@ -56,7 +56,7 @@ public class RemoveStudentByClass {
 			}
 			
 			// 去新平台读取姓名
-			List<String> toBeRemovedLoginList = new ArrayList<>();
+			List<String> toBeRemovedLoginList = new ArrayList<String>();
 			String conditions = "";
 			for (String name : nameList) {
 				conditions += ",'" + name + "'";
@@ -120,7 +120,7 @@ public class RemoveStudentByClass {
 		}
 	
 		public void outputRemoveStudentByClassSql(List<String> loginIdList, String classId){
-			List<String> result = new ArrayList<>();
+			List<String> result = new ArrayList<String>();
 			
 			// 查询项目id
 			String projectId = "";

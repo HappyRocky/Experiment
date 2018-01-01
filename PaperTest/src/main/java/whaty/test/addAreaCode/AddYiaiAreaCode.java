@@ -36,12 +36,12 @@ public class AddYiaiAreaCode {
 		if (areaCode.getLevel() == 1) { // 输出省级日志
 			System.out.println("开始处理" + areaCode.toString() + "的所有子节点");
 		}
-		List<AreaCode> result = new ArrayList<>();
+		List<AreaCode> result = new ArrayList<AreaCode>();
 //		String lastCode = LEVEL_CODES[areaCode.getLevel() + 1]; // 儿子节点的层级编码的最后一个字母
 		
 		// 查询出所有儿子节点
-		List<AreaCode> allChildCodeList = new ArrayList<>(); // 所有子节点
-		List<AreaCode> childCodeNoCodeList = new ArrayList<>(); // 没有层级编码的子节点
+		List<AreaCode> allChildCodeList = new ArrayList<AreaCode>(); // 所有子节点
+		List<AreaCode> childCodeNoCodeList = new ArrayList<AreaCode>(); // 没有层级编码的子节点
 		int maxSerial = 0; // 有层级编码的子节点中的最后一个编码数字的最大值
 		for (AreaCode curAreaCode : allNodeList) {
 			if (curAreaCode.getParentId().equals(areaCode.getId())) {
@@ -95,7 +95,7 @@ public class AddYiaiAreaCode {
 	 * @return
 	 */
 	public List<String> getUpdateList(List<AreaCode> areaCodeList){
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		for (AreaCode areaCode : areaCodeList) {
 			result.add(areaCode.getUpdateLevelCodeSql());
 		}
@@ -112,8 +112,8 @@ public class AddYiaiAreaCode {
 		String sql = "select a.id,a.`name`,a.`level`,a.level_code,a.fk_parent_id from pe_area a where a.fk_site_id='" + SITE_ID + "'";
 		List<Object[]> list = SshMysqlWebtrnTest.getBySQL(sql);
 		if (CollectionUtils.isNotEmpty(list)) {
-			allNodeList = new LinkedList<>(); // 所有的区域节点
-			List<AreaCode> needRepairList = new ArrayList<>(); // 需要修复的区域节点
+			allNodeList = new LinkedList<AreaCode>(); // 所有的区域节点
+			List<AreaCode> needRepairList = new ArrayList<AreaCode>(); // 需要修复的区域节点
 			AreaCode topAreaCode = null; // 顶级区域节点，level=0
 			for (Object[] objs : list) {
 				String id = MyUtils.valueOf(objs[0]);

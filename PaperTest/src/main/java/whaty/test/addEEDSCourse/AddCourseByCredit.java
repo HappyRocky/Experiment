@@ -58,9 +58,9 @@ public class AddCourseByCredit {
 		List<Object[]> countList = SshMysqlWebtrn.queryBySQL(sql);
 		int num = Integer.valueOf(countList.get(0)[0].toString());
 		int second = num / maxSize + 1;
-		List<String> insertWebtrnSqlList = new ArrayList<>();
-		List<String> insertSpaceSqlList = new ArrayList<>();
-		List<String> logList = new ArrayList<>();
+		List<String> insertWebtrnSqlList = new ArrayList<String>();
+		List<String> insertSpaceSqlList = new ArrayList<String>();
+		List<String> logList = new ArrayList<String>();
 		System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
 		for (int j = 0; j < second; j++) {
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
@@ -199,7 +199,7 @@ public class AddCourseByCredit {
 				codeConditions = codeConditions.substring(1);
 			}
 			// 查询课程信息及开课id
-			openCourseIdList = new ArrayList<>();
+			openCourseIdList = new ArrayList<String>();
 			String sql = "SELECT\n" +
 					"	c.ID,\n" +
 					"	ptc.`CODE`\n" +
@@ -220,7 +220,7 @@ public class AddCourseByCredit {
 		System.out.println("候选课程库共有" + openCourseIdList.size() + "门");
 		
 		// 查询已经完成的选课
-		ptIdOpencourseIdSet = new HashSet<>();
+		ptIdOpencourseIdSet = new HashSet<String>();
 		String sql = "SELECT\n" +
 				"	ele.FK_TRAINEE_ID,\n" +
 				"	ele.FK_OPENCOURSE_ID\n" +
@@ -240,7 +240,7 @@ public class AddCourseByCredit {
 		}
 		
 		// 课程空间查询loginId对应的studentId
-		loginIdStuIdMap = new HashMap<>();
+		loginIdStuIdMap = new HashMap<String, String>();
 		sql = "select t.LOGIN_ID,t.ID from pe_student t where t.LOGIN_ID in (" + loginIdConditions + ")  and t.SITE_CODE='yiai'";
 		list = SshMysqlSpace.queryBySQL(sql);
 		for (Object[] objects : list) {

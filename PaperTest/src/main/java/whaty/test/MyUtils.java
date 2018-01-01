@@ -1,4 +1,4 @@
-/*
+﻿/*
  * 文件名：MyUtils.java 
  * 描述：〈描述〉
  * 创建人：Administrator
@@ -121,7 +121,7 @@ public class MyUtils {
 	 */
 	@SuppressWarnings("resource")
 	public static List<String> readFile(String filePath) {
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		File file = new File(filePath);
 		if (!file.exists()) {
 			System.out.println("文件不存在，不能读取：" + filePath);
@@ -177,7 +177,7 @@ public class MyUtils {
 		if (a == null) {
 			return null;
 		}
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		for (String s : a) {
 			result.add(s);
 		}
@@ -254,7 +254,7 @@ public class MyUtils {
 	 * @return
 	 */
 	public static List<String[]> readExcel(String path, int sheetIdx) {
-		List<String[]> resultList = new ArrayList<>();
+		List<String[]> resultList = new ArrayList<String[]>();
 		try {
 			// 创建输入流
 			InputStream stream = new FileInputStream(path);
@@ -279,7 +279,7 @@ public class MyUtils {
 				}
 			}
 		} catch (Exception e) {
-//			e.printStackTrace();
+			e.printStackTrace();
 		}
 		return resultList;
 	}
@@ -289,7 +289,7 @@ public class MyUtils {
 	 * @return
 	 */
 	public static List<List<String>> queryInfoByWebtrn(String path, String gap, String sql){
-		List<List<String>> result = new ArrayList<>();
+		List<List<String>> result = new ArrayList<List<String>>();
 		// 先查询本地是否存在数据
 		File file = new File(path);
 		if (file.exists()) {
@@ -308,11 +308,11 @@ public class MyUtils {
 			return result;
 		}
 		
-		List<String> lineList = new ArrayList<>();
+		List<String> lineList = new ArrayList<String>();
 		List<Object[]> cardList =SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : cardList) {
 			if (objects != null && objects.length > 0) {
-				List<String> list = new ArrayList<>();
+				List<String> list = new ArrayList<String>();
 				for (Object object : objects) {
 					String str = object == null ? "" : object.toString();
 					list.add(str);
@@ -331,7 +331,7 @@ public class MyUtils {
 	 * @return
 	 */
 	public static List<List<String>> queryInfoByYiaiwang(String path, String gap, String sql){
-		List<List<String>> result = new ArrayList<>();
+		List<List<String>> result = new ArrayList<List<String>>();
 		// 先查询本地是否存在数据
 		File file = new File(path);
 		if (file.exists()) {
@@ -350,11 +350,11 @@ public class MyUtils {
 			return result;
 		}
 		
-		List<String> lineList = new ArrayList<>();
+		List<String> lineList = new ArrayList<String>();
 		List<Object[]> cardList =SshMysqlYiaiwang.queryBySQL(sql);
 		for (Object[] objects : cardList) {
 			if (objects != null && objects.length > 0) {
-				List<String> list = new ArrayList<>();
+				List<String> list = new ArrayList<String>();
 				for (Object object : objects) {
 					String str = object == null ? "" : object.toString();
 					list.add(str);
@@ -397,5 +397,53 @@ public class MyUtils {
 	 */
 	public static String valueOf(Object obj){
 		return (obj == null ? "" : obj.toString());
+	}
+	
+	/**
+	 * 根据路径创建一个File对象
+	 * @param path
+	 * @return
+	 */
+	public static File getFile(String path){
+		File file = new File(path);
+		String fileName = getFileName(path);
+		if (StringUtils.isNotBlank(fileName) && !file.exists()) { // 文件不存在，可能是因为java的bug引起的，实际上是有这个文件的。改为从文件夹中读取所有文件，然后匹配文件名
+			File parentFile = new File(getFileParentPath(path));
+			File[] files = parentFile.listFiles(); // 遍历所在文件夹下的所有文件
+			if (files != null) {
+				for (File curFile : files) {
+					if (file.isFile() && fileName.equals(getFileName(curFile.getAbsolutePath()))) { // 文件名一致
+						return curFile;
+					}
+				}
+			}
+		}
+		return file;
+	}
+	
+	/**
+	 * 根据文件的路径，提取出文件名
+	 * @param filePath
+	 * @return
+	 */
+	public static String getFileName(String filePath){
+		String fileName = "";
+		filePath = filePath.replace("\\\\", "/");
+		if (!filePath.endsWith("/")) {
+			int idx = filePath.lastIndexOf("/");
+			if (idx >= 0) {
+				fileName = filePath.substring(idx + 1);
+			}
+		}
+		return fileName;
+	}
+	
+	/**
+	 * 根据文件的路径，提取出文件的父文件夹路径
+	 * @param filePath
+	 * @return
+	 */
+	public static String getFileParentPath(String filePath){
+		return filePath.substring(0, filePath.length() - getFileName(filePath).length());
 	}
 }

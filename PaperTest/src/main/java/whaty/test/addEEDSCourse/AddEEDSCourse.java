@@ -229,7 +229,7 @@ public class AddEEDSCourse {
 	 * @return
 	 */
 	public List<String> generateSpaceSql(String newId, String fullName, String newCode, String subCode, String content){
-		List<String> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<String>();
 		// 插入课程
 		String sql = "INSERT INTO `pe_tch_course` (" +
 				"	`ID`," +
@@ -305,7 +305,7 @@ public class AddEEDSCourse {
 	 * @param id5
 	 */
 	public List<String> generateAddSubjectSql(String name2, String id2, String name3, String id3, String name4, String id4, String name5, String id5){
-		List<String> addSubjectSqlList = new ArrayList<>();
+		List<String> addSubjectSqlList = new ArrayList<String>();
 		// 添加二级
 		if (!subjectMap.containsKey(name2)) {
 			String id = MyUtils.uuid();

@@ -17,7 +17,7 @@ import whaty.test.SshMysqlSpace;
  */
 public class AddStuSco {
 	public void outputAddStuScoSql(String startTime, String endTime){
-		List<String> addStuScoSqlList = new ArrayList<>();
+		List<String> addStuScoSqlList = new ArrayList<String>();
 		System.out.println("查询课程空间学习完成记录");
 		String sql = "SELECT\n" +
 				"	ele.id as eleId,\n" +

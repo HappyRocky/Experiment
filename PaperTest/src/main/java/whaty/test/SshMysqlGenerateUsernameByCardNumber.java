@@ -94,7 +94,7 @@ public class SshMysqlGenerateUsernameByCardNumber {
 			// 读取需要修改的卡片
 			String path = path = "E:/myJava/yiaiSql/20170612/updateCardValidation.sql";
 			List<String> lineList = MyUtils.readFile(path);
-			List<String> cardNumberlist = new ArrayList<>();
+			List<String> cardNumberlist = new ArrayList<String>();
 			for (int i = 0; i < lineList.size(); i++) {
 				String line = lineList.get(i);
 				cardNumberlist.add(line.substring(line.lastIndexOf("ID='") + 4, line.length() - 2));
@@ -117,7 +117,7 @@ public class SshMysqlGenerateUsernameByCardNumber {
 			while (resultSet.next()) {
 				num = resultSet.getInt(1);
 			}
-			List<String> outputDiffList = new ArrayList<>();
+			List<String> outputDiffList = new ArrayList<String>();
 			if (num >= maxSize) {
 				System.out.println("数量超过" + maxSize + "，需编码");
 			} else {
@@ -135,7 +135,7 @@ public class SshMysqlGenerateUsernameByCardNumber {
 						"	 n.ID in ('"+cardIdCondition+"')\n" +
 						"GROUP BY pt.ID";
 				resultSet = statement.executeQuery(sql);
-				List<String> usernameList = new ArrayList<>();
+				List<String> usernameList = new ArrayList<String>();
 				
 				while (resultSet.next()) {
 					String usernameId = resultSet.getString(1).trim();

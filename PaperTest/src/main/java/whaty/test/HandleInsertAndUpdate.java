@@ -17,8 +17,8 @@ public class HandleInsertAndUpdate {
 	
 	public static void dispath(String path, String insertPath, String updatePath){
 		List<String> list = MyUtils.readFile(path);
-		List<String> insertList = new ArrayList<>();
-		List<String> updateList = new ArrayList<>();
+		List<String> insertList = new ArrayList<String>();
+		List<String> updateList = new ArrayList<String>();
 		for (int i = 0; i < list.size(); i++) {
 			String sql = list.get(i);
 			if (sql.contains("UPDATE")) {
@@ -38,7 +38,7 @@ public class HandleInsertAndUpdate {
 	 */
 	public static void addDuplicateKey(String path, String outPath){
 		List<String> list = MyUtils.readFile(path);
-		List<String> insertList = new ArrayList<>();
+		List<String> insertList = new ArrayList<String>();
 		for (int i = 0; i < list.size(); i++) {
 			String sql = list.get(i);
 			if (sql.contains("INSERT")) {

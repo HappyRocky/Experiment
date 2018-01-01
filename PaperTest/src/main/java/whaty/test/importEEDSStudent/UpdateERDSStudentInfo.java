@@ -46,14 +46,14 @@ public class UpdateERDSStudentInfo {
 		hospitalMap = new HashMap<String, List<AreaCode>>();
 		String sql = "select id,name,level_code from pe_area where fk_parent_id='c311a57e6b5c11e683b100251113d11d' ";
 		List<Object[]> result = SshMysqlWebtrn.getBySQL(sql);
-		eedsAreaList = new ArrayList<>();
+		eedsAreaList = new ArrayList<AreaCode>();
 		for (Object[] objects : result) {
 			AreaCode areaCode = new AreaCode(objects[0].toString(), objects[1].toString(), 0, objects[2].toString(), "c311a57e6b5c11e683b100251113d11d");
 			eedsAreaList.add(areaCode);
 			// 得到旗下的医院
 			sql = "select id,name,level_code from pe_area where fk_parent_id='" + areaCode.getId() + "'";
 			List<Object[]> hospitalList = SshMysqlWebtrn.getBySQL(sql);
-			List<AreaCode> hospitalList2 = new ArrayList<>();
+			List<AreaCode> hospitalList2 = new ArrayList<AreaCode>();
 			for (Object[] hosps : hospitalList) {
 				AreaCode hosp = new AreaCode(hosps[0].toString(), hosps[1].toString(), 0, hosps[2].toString(), areaCode.getId());
 				hospitalList2.add(hosp);
@@ -101,9 +101,9 @@ public class UpdateERDSStudentInfo {
 		getEEDSAreaList();
 		System.out.println("查询基础信息完毕");
 		String[] fileNames = {"all"};
-		List<String> result = new ArrayList<>();
-		List<String> addDepartList = new ArrayList<>();
-		List<String> updateSsoMobile = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
+		List<String> addDepartList = new ArrayList<String>();
+		List<String> updateSsoMobile = new ArrayList<String>();
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2.xls";
 //		String path = "F:/whaty/医爱数据库迁移/1-达拉特旗人民医院北大医学网花名册2-1.xls";
 		for (String fileName : fileNames) {
@@ -337,6 +337,15 @@ public class UpdateERDSStudentInfo {
 						}
 						if (title.contains("放射")) {
 							title = "放射技师";
+						}
+						if (title.equals("蒙医医师") || title.equals("蒙西医医师")) {
+							title = "蒙医师";
+						}
+						if (title.equals("临床医师")) {
+							title = "医师";
+						}
+						if (title.equals("检验室")) {
+							title = "检验师";
 						}
 						if (title.contains("\n")) {
 							title = title.replaceAll("\n", "");

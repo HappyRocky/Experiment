@@ -35,10 +35,10 @@ public class AddStudyRecordOld {
 	public void outputStudyRecord(String startTime, String endTime, String classId, String eleModuleId, String studyModuleId){
 		init(classId);
 		int maxSize = 3000;
-		List<String> insertWebtrnSqlList = new ArrayList<>();
-		List<String> insertSpaceSqlList = new ArrayList<>();
-		Set<String> openedLoginIdSet = new HashSet<>(); // 存放开启过班级流程的loginId
-		List<String> lostCourseList = new ArrayList<>(); // 缺失的课程
+		List<String> insertWebtrnSqlList = new ArrayList<String>();
+		List<String> insertSpaceSqlList = new ArrayList<String>();
+		Set<String> openedLoginIdSet = new HashSet<String>(); // 存放开启过班级流程的loginId
+		List<String> lostCourseList = new ArrayList<String>(); // 缺失的课程
 		System.out.println("开始查询");
 		String sql = "SELECT DISTINCT\n" +
 				"    MUCCS.user_id AS userid,\n" +
@@ -190,7 +190,7 @@ public class AddStudyRecordOld {
 		// 查询课程code对应的开课id
 		System.out.println("查询课程code对应的开课id");
 		codePocId = new HashMap<String, String>();
-		loginIdCodeSet = new HashSet<>();
+		loginIdCodeSet = new HashSet<String>();
 		String sql = "SELECT\n" +
 				"	ptc.`CODE`,\n" +
 				"	poc.ID,\n" +
@@ -213,7 +213,7 @@ public class AddStudyRecordOld {
 		}
 		// 查询loginId对应的ptId
 		System.out.println("查询loginId对应的ptId");
-		loginIdPtIdMap = new HashMap<>();
+		loginIdPtIdMap = new HashMap<String, String>();
 		sql = "SELECT\n" +
 				"	pt.LOGIN_ID,\n" +
 				"	pt.ID\n" +
@@ -233,7 +233,7 @@ public class AddStudyRecordOld {
 		}
 		// 课程空间查询loginId对应的studentId
 		System.out.println("查询课程空间查询loginId对应的studentId");
-		loginIdStuIdMap = new HashMap<>();
+		loginIdStuIdMap = new HashMap<String, String>();
 		sql = "select t.LOGIN_ID,t.ID from pe_student t where (t.LOGIN_ID LIKE 'erds@%' or t.LOGIN_ID LIKE 'dltq@%') and t.SITE_CODE='yiai'";
 		list = SshMysqlSpace.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -270,7 +270,7 @@ public class AddStudyRecordOld {
 
 		// 在新平台查找
 		System.out.println("在新平台查找");
-		List<String> updateCodeSqlList = new ArrayList<>();
+		List<String> updateCodeSqlList = new ArrayList<String>();
 		String sql = "select c.ID,c.`NAME`,c.site_code from pe_tch_course c "
 				+ "where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9' and c.site_code in (" + conditions + ")";
 		List<Object[]> list = SshMysqlWebtrn.getBySQL(sql);
@@ -300,7 +300,7 @@ public class AddStudyRecordOld {
 	
 	// 对特殊学员进行补课
 	public List<Object[]> generateObjectList(){
-		List<Object[]> result = new ArrayList<>();
+		List<Object[]> result = new ArrayList<Object[]>();
 		// 需要补课的学员
 		String[] loginIdList = {"erds@4735.com", "erds@4700.com", "erds@4224.com", "erds@6406.com", "erds@4650.com", "erds@4643.com", "erds@4638.com"};
 		

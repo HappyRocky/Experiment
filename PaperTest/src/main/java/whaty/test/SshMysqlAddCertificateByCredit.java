@@ -87,7 +87,7 @@ public class SshMysqlAddCertificateByCredit {
 			List<String> updateSqlList = new ArrayList<String>();
 			int second = num / maxSize + 1;
 			System.out.println("总记录为" + num + "条，将分" + second + "次执行");
-			List<String> sqlList = new ArrayList<>();
+			List<String> sqlList = new ArrayList<String>();
 			for (int i = 0; i < second; i++) {
 				System.out.println("正在执行第" + i + "次批量计算");
 				sql = "SELECT\n" + "	a.id,\n" + "	a.fk_trainee_id,\n" + "	a.fk_coursePac_id,\n"

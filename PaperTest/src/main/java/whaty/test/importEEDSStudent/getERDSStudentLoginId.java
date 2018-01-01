@@ -24,18 +24,18 @@ public class getERDSStudentLoginId {
 	private Map<String, String> keyLoginIdMap;
 	
 	public String generateKey(String name ,String cardNo ,String mobile ,String workPlace ,String dept ,String major ,String education){
-		return name + workPlace;
+		return name + mobile;
 	}
 	
 	public void outputLoginIdList(){
 		init();
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 //		String fileName = "1-达拉特旗2017年继续医学教育专业课统一培训考核报名汇总表2-2_用户名";
 		String fileName = "all";
 		String path = "F:/whaty/医爱数据库迁移/2017--2018年度/" + fileName + ".xls";
 		List<String[]> lineList = MyUtils.readExcel(path, 1);
-		Set<String> repeatLoginIdSet = new HashSet<>(); // 已经使用过的loginId
-		List<String> newMatchedLoginIdList = new ArrayList<>(); // 新匹配到的loginId
+		Set<String> repeatLoginIdSet = new HashSet<String>(); // 已经使用过的loginId
+		List<String> newMatchedLoginIdList = new ArrayList<String>(); // 新匹配到的loginId
 		for (int i = 0; i < lineList.size(); i++) {
 			String[] strs = lineList.get(i);
 			String oldLoginId = MyUtils.valueOf(strs[0]).trim().replaceAll(" ", "").replaceAll("　", "");
@@ -85,7 +85,7 @@ public class getERDSStudentLoginId {
 	}
 	
 	public void init(){
-		keyLoginIdMap = new HashMap<>();
+		keyLoginIdMap = new HashMap<String, String>();
 		String sql = "SELECT\n" +
 				"	pt.LOGIN_ID,\n" +
 				"	pt.CARD_NO,\n" +

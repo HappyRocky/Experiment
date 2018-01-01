@@ -446,7 +446,7 @@ public class AddEEDSCourseWenjianbao {
 	 * @return
 	 */
 	public List<String> generateSpaceSql(String newId, String fullName, String newCode, String subCode, String originCode, String abilityName, String careerName, String themeName){
-		List<String> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<String>();
 		// 插入课程
 		String sql = "INSERT INTO `pe_tch_course` (" +
 				"	`ID`," +
@@ -535,8 +535,8 @@ public class AddEEDSCourseWenjianbao {
 	 * @param id5
 	 */
 	public List<Object> generateAddSubjectSql(String name2, String id2, String name3, String id3, String name4, String id4, String name5, String id5){
-		List<Object> result = new ArrayList<>();
-		List<String> addSubjectSqlList = new ArrayList<>();
+		List<Object> result = new ArrayList<Object>();
+		List<String> addSubjectSqlList = new ArrayList<String>();
 		// 添加二级
 		if (!subjectMap.containsKey(name2)) {
 			System.out.println("没有二级学科：" + name2);
@@ -679,7 +679,7 @@ public class AddEEDSCourseWenjianbao {
 	}
 	
 	public void init(){
-		courseCodeList = new ArrayList<>();
+		courseCodeList = new ArrayList<String>();
 		// 获取学科
 		subjectMap = new HashMap<String, YiaiSubject>();
 		String sql = "SELECT\n" +
@@ -742,7 +742,7 @@ public class AddEEDSCourseWenjianbao {
 		}
 		
 		// 获取能力
-		nengliMap = new HashMap<>();
+		nengliMap = new HashMap<String, YiaiSubject>();
 		sql = "select ec.id,ec.name,ec.code from enum_const ec where ec.NAMESPACE='FlagAbility' and ec.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -753,7 +753,7 @@ public class AddEEDSCourseWenjianbao {
 			nengliMap.put(name, yiaiSubject);
 		}
 		// 获取主题
-		zhutiMap = new HashMap<>();
+		zhutiMap = new HashMap<String, YiaiSubject>();
 		sql = "select ec.id,ec.name,ec.code from enum_const ec where ec.NAMESPACE='FlagTheme' and ec.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -764,7 +764,7 @@ public class AddEEDSCourseWenjianbao {
 			zhutiMap.put(name, yiaiSubject);
 		}
 		// 获取职称
-		zhichengMap = new HashMap<>();
+		zhichengMap = new HashMap<String, YiaiSubject>();
 		sql = "select ec.id,ec.name,ec.code from enum_const ec where ec.NAMESPACE='FlagCareer' and ec.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -775,7 +775,7 @@ public class AddEEDSCourseWenjianbao {
 			zhichengMap.put(name, yiaiSubject);
 		}
 		// 获取来源
-		laiyuanMap = new HashMap<>();
+		laiyuanMap = new HashMap<String, YiaiSubject>();
 		sql = "select o.id,o.`NAME`,o.`CODE` from pe_origin o where o.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -786,7 +786,7 @@ public class AddEEDSCourseWenjianbao {
 			laiyuanMap.put(name, yiaiSubject);
 		}
 		// 获取专家
-		expertMap = new HashMap<>();
+		expertMap = new HashMap<String, Expert>();
 		sql = "SELECT e.ID,e.`NAME`,e.WORKPLACE FROM 	pe_expert e WHERE 	e.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9' and e.`NAME` != ''";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -796,7 +796,7 @@ public class AddEEDSCourseWenjianbao {
 			expertMap.put(name + workPlace, new Expert(id, name, workPlace, null));
 		}
 		// 获取已存在的课程
-		exitCodeSubMap = new HashMap<>();
+		exitCodeSubMap = new HashMap<String, String>();
 		sql = "select c.`CODE`,c.fk_subject_id from pe_tch_course c where c.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : list) {
@@ -807,7 +807,7 @@ public class AddEEDSCourseWenjianbao {
 			}
 		}
 		// 获取新平台的5级学科
-		subjectCodeIdMap = new HashMap<>();
+		subjectCodeIdMap = new HashMap<String, String>();
 		sql = "select s.`code`,s.id from pe_subject s where s.`level`='5' and s.fk_site_id='ff80808155da5b850155dddbec9404c9';";
 		list = SshMysqlWebtrn.getBySQL(sql);
 		for (Object[] objects : list) {

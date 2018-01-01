@@ -37,7 +37,7 @@ public class YiaiAddCreditApplyGeneralSql {
 	public List<List<String>> queryApplyInfo(){
 		String gap = "___";
 		String path = "E:/myJava/yiaiSql/20170712/applyRecord.txt";
-		List<List<String>> result = new ArrayList<>();
+		List<List<String>> result = new ArrayList<List<String>>();
 		// 先查询本地是否存在数据
 //		File file = new File(path);
 //		if (file.exists()) {
@@ -58,7 +58,7 @@ public class YiaiAddCreditApplyGeneralSql {
 		// 需要重新申请的loginId
 		String loginIdPath = "E:/myJava/yiaiSql/20170712/compareApplyInfo_diff_all.txt";
 		List<String> lineList1 = MyUtils.readFile(loginIdPath);
-		List<String> loginIdList = new ArrayList<>();
+		List<String> loginIdList = new ArrayList<String>();
 		int count = 0;
 		int count2 = 0;
 		for (int i = 0; i < lineList1.size(); i++) {
@@ -119,7 +119,7 @@ public class YiaiAddCreditApplyGeneralSql {
 		sb.append(" and MU.username in ('19216026@qq.com','805998570@qq.com','1825520817@qq.com','4609785@qq.com','2670628890@qq.com','215774301@qq.com','958553857@qq.com','849153603@qq.com','13383776@qq.com','752064756@qq.com','3449579530@qq.com','412060264@qq.com','522917859@qq.com','1036738968@qq.com','123321123@qq.com','593122689@qq.com','13036779152@163.com','1017014363@qq.com')");
 		sb.append(" order by MU.username");
 		List<Object[]> cardList =SshMysqlYiaiwang.queryBySQL(sb.toString());
-		List<String> lineList = new ArrayList<>();
+		List<String> lineList = new ArrayList<String>();
 		System.out.println(sb.toString());
 		for (Object[] objects : cardList) {
 			if (objects != null && objects.length > 0) {
@@ -165,7 +165,7 @@ public class YiaiAddCreditApplyGeneralSql {
 //					continue;
 //				} 
 				
-				List<String> list = new ArrayList<>();
+				List<String> list = new ArrayList<String>();
 				list.add(loginId);
 				list.add(categoryName);
 				list.add(type);
@@ -228,7 +228,7 @@ public class YiaiAddCreditApplyGeneralSql {
 		// 读取重复申请的查询sql
 		isDuplicateApplyList = MyUtils.readFile(isDuplicateApplyPath);
 		if (isDuplicateApplyList == null) {
-			isDuplicateApplyList = new ArrayList<>();
+			isDuplicateApplyList = new ArrayList<String>();
 		}
 		
 		int batch = 100; // 分批处理

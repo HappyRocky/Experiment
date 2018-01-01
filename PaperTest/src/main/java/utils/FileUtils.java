@@ -33,7 +33,7 @@ public class FileUtils {
 	 * @return list，包含所有行的内容
 	 */
 	public static List<String> readFile(String filePath) {
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		BufferedReader br = null;
 		try {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));

@@ -21,7 +21,7 @@ public class JSONtest {
 	public static void main(String[] args) {
 		// 初始化一个实体对象并赋值
 		Student student = new Student();
-		List<String> hobbyList = new ArrayList<>();
+		List<String> hobbyList = new ArrayList<String>();
 		hobbyList.add("Baseball");
 		hobbyList.add("Sing");
 		student.setHobbyList(hobbyList);

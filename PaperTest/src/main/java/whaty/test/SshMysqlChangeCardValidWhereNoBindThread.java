@@ -58,7 +58,7 @@ public class SshMysqlChangeCardValidWhereNoBindThread extends Thread{
 	public void run(){
 		System.out.println("线程开启：" + start + "~" + end);
 		String outPath = "E:/myJava/yiaiSql/20170705/udpateCardValid_" + start + "_" + end + ".sql";
-		List<String> sqlList = new ArrayList<>();
+		List<String> sqlList = new ArrayList<String>();
 		int updateCount = 0;
 		int notUpdateCount = 0;
 		Statement statement = null;

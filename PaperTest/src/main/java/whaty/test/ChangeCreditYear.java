@@ -30,7 +30,7 @@ public class ChangeCreditYear {
 		periodList.add(periodEnd);
 		
 		int maxSize = 100;
-		List<String> updatePca = new ArrayList<>();
+		List<String> updatePca = new ArrayList<String>();
 		int updateCount = 0; // 需要更新的记录数 
 		for (int i = 0; i < periodList.size() - 1; i++) {
 			// 得到申请记录

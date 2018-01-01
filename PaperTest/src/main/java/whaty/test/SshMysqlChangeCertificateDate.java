@@ -68,7 +68,7 @@ public class SshMysqlChangeCertificateDate {
 			while (resultSet.next()) {
 				num = resultSet.getInt(1);
 			}
-			List<String> updateList = new ArrayList<>();
+			List<String> updateList = new ArrayList<String>();
 			if (num >= maxSize) {
 				int second = num / maxSize + 1;
 				System.out.println("总记录大于"+maxSize+"条，将分" + second + "次执行");

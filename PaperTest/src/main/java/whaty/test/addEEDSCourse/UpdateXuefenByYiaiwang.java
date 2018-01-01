@@ -29,7 +29,7 @@ public class UpdateXuefenByYiaiwang {
 		init(classId, year);
 		// 查询原平台学分
 		System.out.println("查询原平台学分");
-		List<String> updateXuefenList = new ArrayList<>();
+		List<String> updateXuefenList = new ArrayList<String>();
 		loginIdCreditYiaiMap = new HashMap<String, Integer[]>();
 		String sql = "SELECT\n" +
 				"	sum(xueshi) AS xueshi,\n" +

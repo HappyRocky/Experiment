@@ -113,7 +113,7 @@ public class SshMysqlCompareAccount {
 			while (resultSet.next()) {
 				num = resultSet.getInt(1);
 			}
-			List<String> outputDiffList = new ArrayList<>();
+			List<String> outputDiffList = new ArrayList<String>();
 			if (num >= maxSize) {
 			} else {
 				// 总学分
@@ -318,8 +318,8 @@ public class SshMysqlCompareAccount {
 				System.out.println("查询webtrn数据完毕");
 				
 				// 输出
-				List<String> outputList = new ArrayList<>();
-				List<String> updateSqlList = new ArrayList<>();
+				List<String> outputList = new ArrayList<String>();
+				List<String> updateSqlList = new ArrayList<String>();
 				
 				System.out.println("开始比对");
 				for (Map.Entry<String, Integer[]> entry : accountMap.entrySet()) {
@@ -349,7 +349,7 @@ public class SshMysqlCompareAccount {
 						yiai_score2 = 0;
 					}
 					
-					List<String> list = new ArrayList<>();
+					List<String> list = new ArrayList<String>();
 					list.add(username);
 					list.add(yiai_score1+"");
 					list.add(scoreLeftWebtrn1+"");
@@ -427,7 +427,7 @@ public class SshMysqlCompareAccount {
 	 * @return
 	 */
 	public static List<String> repairCardAccount(String loginId, int yiai_score1, int yiai_score2, int yiai_scoreCommon, Connection conn, String endDate){
-		List<String> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<String>();
 		try {
 			// 查询当前学员的有效卡片
 			Statement statement = conn.createStatement();

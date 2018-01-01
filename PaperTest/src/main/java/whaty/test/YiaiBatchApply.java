@@ -155,7 +155,7 @@ public class YiaiBatchApply {
 	 */
 	private Map<String, Object> deductCredit(int credit, String creditType, String traineeId, String siteId,
 			String creditApplyid) {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		StringBuilder cardSqlSb = new StringBuilder();
 		cardSqlSb.append(" SELECT ");
 		cardSqlSb.append(" 	pcn.ID, "); // 0：卡号id
@@ -188,9 +188,9 @@ public class YiaiBatchApply {
 				return map;
 			} else {
 				int creditCount = 0;
-				List<String> cardNumberIdList = new ArrayList<>();
-				List<String> isCommonScoreList = new ArrayList<>();
-				List<String> resultSqlList = new ArrayList<>();
+				List<String> cardNumberIdList = new ArrayList<String>();
+				List<String> isCommonScoreList = new ArrayList<String>();
+				List<String> resultSqlList = new ArrayList<String>();
 				boolean hasSuccess = false; // 是否可以成功扣除学分
 				// 累加可用学分，直至达到需要扣除的学分
 				for (int i = 0; i < cardList.size(); i++) {
@@ -287,7 +287,7 @@ public class YiaiBatchApply {
 	 * @return 要执行的sql队列
 	 */
 	private List<String> updateCardNumberUsableCredit(List<String> cardNumberIdList, List<String> isCommonScoreList, int restCredit, String creditType){
-		List<String> sqlList = new ArrayList<>(); // 要执行的sql队列
+		List<String> sqlList = new ArrayList<String>(); // 要执行的sql队列
 		if (CollectionUtils.isEmpty(cardNumberIdList) || cardNumberIdList.size() != isCommonScoreList.size()) {
 			return sqlList;
 		}

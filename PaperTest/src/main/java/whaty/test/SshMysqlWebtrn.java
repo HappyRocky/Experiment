@@ -28,7 +28,7 @@ public class SshMysqlWebtrn {
 	public static Connection conn = null;
 	
 	public static void main(String[] args) {
-		Map conditions = new HashMap<>();
+		Map conditions = new HashMap<Object, Object>();
 		conditions.put("traineeId", "a8a7e7b8db5046d58e713520a8b02939");
 		conditions.put("classId", "4028aba95cf6acd4015cf6d88cd3002f");
 		conditions.put("siteId", "ff80808155de17270155de1ecca20448");

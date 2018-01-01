@@ -169,7 +169,7 @@ public class MatchUser {
 	
 	public void init(){
 		// 获取原平台的user信息
-		yiaiUserInfoList = new ArrayList<>();
+		yiaiUserInfoList = new ArrayList<List<String>>();
 		String sql = "SELECT\n" +
 				"	u.id,\n" + // 0：userid
 				"	nameData.`data` as name,\n" + // 1：姓名
@@ -187,7 +187,7 @@ public class MatchUser {
 				"	(u.username like 'erds@%' or u.username like 'dltq@%')";
 		List<Object[]> list = SshMysqlYiaiwang.queryBySQL(sql);
 		for (Object[] objects : list) {
-			List<String> infoList = new ArrayList<>();
+			List<String> infoList = new ArrayList<String>();
 			for (int i = 0; i < objects.length; i++) {
 				infoList.add(MyUtils.valueOf(objects[i]));
 			}

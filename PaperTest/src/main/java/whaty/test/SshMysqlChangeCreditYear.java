@@ -95,7 +95,7 @@ public class SshMysqlChangeCreditYear {
 			while (resultSet.next()) {
 				num = resultSet.getInt(1);
 			}
-			List<String> outputDiffList = new ArrayList<>();
+			List<String> outputDiffList = new ArrayList<String>();
 			if (num >= maxSize) {
 				int second = num / maxSize + 1;
 				System.out.println("总记录大于"+maxSize+"条，将分" + second + "次执行");
@@ -170,7 +170,7 @@ public class SshMysqlChangeCreditYear {
 					System.out.println("查询webtrn数据完毕");
 					
 					// 输出
-					List<String> outputList = new ArrayList<>();
+					List<String> outputList = new ArrayList<String>();
 					
 					for (Map.Entry<String, String> entry : map.entrySet()) {
 						String username = entry.getKey();

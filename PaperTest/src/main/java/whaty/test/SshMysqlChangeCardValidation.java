@@ -94,7 +94,7 @@ public class SshMysqlChangeCardValidation {
 			// 读取需要修改的学员
 			String path = "E:/myJava/yiaiSql/20170612/UsernameToUpdateAccount.sql";
 			List<String> lineList = MyUtils.readFile(path);
-			List<String> loginIdList = new ArrayList<>();
+			List<String> loginIdList = new ArrayList<String>();
 			for (int i = 0; i < lineList.size(); i++) {
 				String line = lineList.get(i);
 				loginIdList.add(line);
@@ -118,7 +118,7 @@ public class SshMysqlChangeCardValidation {
 			while (resultSet.next()) {
 				num = resultSet.getInt(1);
 			}
-			List<String> outputDiffList = new ArrayList<>();
+			List<String> outputDiffList = new ArrayList<String>();
 			if (num >= maxSize) {
 				System.out.println("数量超过" + maxSize + "，需编码");
 			} else {
@@ -140,7 +140,7 @@ public class SshMysqlChangeCardValidation {
 						"AND 10\n" +
 						"and u.username in ('"+loginIdCondition+"')";
 				resultSet = statement.executeQuery(sql);
-				List<String> updateSql = new ArrayList<>();
+				List<String> updateSql = new ArrayList<String>();
 				
 				while (resultSet.next()) {
 					String username = resultSet.getString(1).trim();

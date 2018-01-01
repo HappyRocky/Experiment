@@ -34,10 +34,10 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 //			System.out.println("申请记录已经生成sql：" + outPath);
 //			return;
 //		}
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		int success = 0;
 		int fail = 0;
-		applyIdList = new ArrayList<>();
+		applyIdList = new ArrayList<String>();
 		for (int i = start; i < end; i++) {
 			List<String> applyInfo = queryApplyInfo.get(i);
 //			System.out.println(i + ".开始申请：" + applyInfo.get(0) + " " + applyInfo.get(1));
@@ -74,7 +74,7 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 	 * @return
 	 */
 	public List<String> generalSingleApplySql(List<String> applyInfo){
-		List<String> allSqlList = new ArrayList<>(); // 存放扣除学分、插入申请记录、插入卡片扣除学分详细记录的sql
+		List<String> allSqlList = new ArrayList<String>(); // 存放扣除学分、插入申请记录、插入卡片扣除学分详细记录的sql
 		
 		String loginId = applyInfo.get(0);
 		String packageName = applyInfo.get(1);
@@ -305,7 +305,7 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 	 */
 	private Map<String, Object> deductCredit(int credit, String creditType, String traineeId, String siteId,
 			String creditApplyid) {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		StringBuilder cardSqlSb = new StringBuilder();
 		cardSqlSb.append(" SELECT ");
 		cardSqlSb.append(" 	pcn.ID, "); // 0：卡号id
@@ -337,9 +337,9 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 				return map;
 			} else {
 				int creditCount = 0;
-				List<String> cardNumberIdList = new ArrayList<>();
-				List<String> isCommonScoreList = new ArrayList<>();
-				List<String> resultSqlList = new ArrayList<>();
+				List<String> cardNumberIdList = new ArrayList<String>();
+				List<String> isCommonScoreList = new ArrayList<String>();
+				List<String> resultSqlList = new ArrayList<String>();
 				boolean hasSuccess = false; // 是否可以成功扣除学分
 				// 累加可用学分，直至达到需要扣除的学分
 				for (int i = 0; i < cardList.size(); i++) {
@@ -434,7 +434,7 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 	 * @return 要执行的sql队列
 	 */
 	private List<String> updateCardNumberUsableCredit(List<String> cardNumberIdList, List<String> isCommonScoreList, int restCredit, String creditType){
-		List<String> sqlList = new ArrayList<>(); // 要执行的sql队列
+		List<String> sqlList = new ArrayList<String>(); // 要执行的sql队列
 		if (CollectionUtils.isEmpty(cardNumberIdList) || cardNumberIdList.size() != isCommonScoreList.size()) {
 			return sqlList;
 		}
@@ -476,7 +476,7 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 	 * @return code=1为成功，其他为失败，list为回退sql
 	 */
 	private Map<String, Object> deductCreditByBatch(String traineeId, List<Integer> creditList, List<String> creditTypeList, List<String> creditApplyidList, String siteId) {
-		Map<String, Object> map = new HashMap<>();
+		Map<String, Object> map = new HashMap<String, Object>();
 		if (creditList.size() != creditTypeList.size() || creditList.size() != creditApplyidList.size()) {
 			map.put("code", "-4");
 			map.put("info", "参数错误，list长度不一致");
@@ -519,9 +519,9 @@ public class YiaiAddCreditApplyGeneralSqlThread extends Thread {
 					String creditApplyid = creditApplyidList.get(applyIdx);
 					
 					int creditCount = 0;
-					List<String> cardNumberIdList = new ArrayList<>();
-					List<String> isCommonScoreList = new ArrayList<>();
-					List<String> resultSqlList = new ArrayList<>();
+					List<String> cardNumberIdList = new ArrayList<String>();
+					List<String> isCommonScoreList = new ArrayList<String>();
+					List<String> resultSqlList = new ArrayList<String>();
 					boolean hasSuccess = false; // 是否可以成功扣除学分
 					// 累加可用学分，直至达到需要扣除的学分
 					for (int i = 0; i < cardList.size(); i++) {

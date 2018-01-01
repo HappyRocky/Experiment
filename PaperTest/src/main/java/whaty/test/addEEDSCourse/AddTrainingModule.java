@@ -18,8 +18,8 @@ import whaty.test.SshMysqlWebtrn;
  */
 public class AddTrainingModule {
 	public void outputAddSql(String classId, String eleModuleId, String studyModuleId){
-		List<String> addTrainingModuleSqlList = new ArrayList<>();
-		Set<String> openedLoginIdSet = new HashSet<>();
+		List<String> addTrainingModuleSqlList = new ArrayList<String>();
+		Set<String> openedLoginIdSet = new HashSet<String>();
 		System.out.println("查询信息");
 		String sql = "SELECT\n" +
 				"	e.ID,\n" +

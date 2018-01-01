@@ -17,7 +17,7 @@ public class YiaiAddCardNumberGeneralSql {
 	private List<List<String>> cardAreaList; // 不同编码段的学分卡的类型
 	
 	private void init(){
-		cardTypeList = new ArrayList<>();
+		cardTypeList = new ArrayList<List<String>>();
 		cardTypeList.add(Arrays.asList("1","国家一类10分 + 远程二类5分","10","5"));
 		cardTypeList.add(Arrays.asList("2","国家一类5分","5","0"));
 		cardTypeList.add(Arrays.asList("3","远程二类5分","0","5"));
@@ -29,7 +29,7 @@ public class YiaiAddCardNumberGeneralSql {
 		cardTypeList.add(Arrays.asList("9","国家一类15分","15","0"));
 		cardTypeList.add(Arrays.asList("10","通用学分卡20分","0","0"));
 		
-		cardAreaList = new ArrayList<>();
+		cardAreaList = new ArrayList<List<String>>();
 		// 江苏
 		cardAreaList.add(Arrays.asList("A2201611410","A2201613984","ff8080815bd94514015be5e8f0a7068c","2017-12-31"));
 		cardAreaList.add(Arrays.asList("A3201616166","A3201616836","ff8080815bd94514015be5e8f0a7068c","2017-12-31"));
@@ -65,7 +65,7 @@ public class YiaiAddCardNumberGeneralSql {
 	 */
 	public List<String> generalSelectSqlList(){
 		init();
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		for (List<String> list : cardTypeList) {
 			UUID uuid = UUID.randomUUID();
 			String id = uuid.toString().replaceAll("-", "");
@@ -116,10 +116,10 @@ public class YiaiAddCardNumberGeneralSql {
 		int batch = 5000;
 		System.out.println("开始生成select语句");
 		List<String> selectSqlList = generalSelectSqlList();
-		List<String> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<String>();
 		System.out.println("开始执行select语句");
 		for (int j = 0; j < selectSqlList.size(); j++) {
-			List<String> eachSelectResult = new ArrayList<>(); 
+			List<String> eachSelectResult = new ArrayList<String>(); 
 			String selectSql = selectSqlList.get(j);
 			// 分批select
 			for (int i = 0; i < 1000 ; i++) {
@@ -157,7 +157,7 @@ public class YiaiAddCardNumberGeneralSql {
 	 * @return
 	 */
 	public List<String> generalUpdateSql(){
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		for (List<String> cardArea : cardAreaList) {
 			StringBuffer sqlSb = new StringBuffer();
 			sqlSb.append(" update pe_card_number n set ");
@@ -173,7 +173,7 @@ public class YiaiAddCardNumberGeneralSql {
 	}
 	
 	public static void main(String[] args) {
-		List<String> executeList = new ArrayList<>();
+		List<String> executeList = new ArrayList<String>();
 		String outPath = "E:/myJava/yiaiSql/20170726/insertCardNumber_with_update.sql";
 		String updateSql = "UPDATE pe_card_number n,  pe_trainee pt SET n.FK_SSO_USER_ID = pt.ID,  n.FK_TRAINEE_ID = pt.ID,  n.FLAG_ISUSED='1902b34c5f7f11e69b44848f69e05bf0' WHERE 	n.FK_SSO_USER_ID = pt.LOGIN_ID AND n.FK_SSO_USER_ID != '' AND n.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9' ;";
 		YiaiAddCardNumberGeneralSql yiaiAddCardNumberGeneralSql = new YiaiAddCardNumberGeneralSql();

@@ -18,7 +18,7 @@ public class RemoveDuplicateRecord {
 	 * @return
 	 */
 	public static List<Object[]> removeDuplicate(List<String[]> record1, List<String[]> record2){
-		List<Object[]> result = new ArrayList<>();
+		List<Object[]> result = new ArrayList<Object[]>();
 		for (String[] strs : record1) {
 			boolean hasSame = false; // record2中是否有相同记录
 			for (String[] strs2 : record2) {

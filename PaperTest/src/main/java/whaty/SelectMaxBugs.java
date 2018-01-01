@@ -30,7 +30,7 @@ public class SelectMaxBugs {
 
 	public void outputUrl() throws Exception{
 		String path = "F:/whaty/响应慢的站点详细信息.xls";
-		List<String> outputList = new ArrayList<>();
+		List<String> outputList = new ArrayList<String>();
 		
 		// 扫描所有标签页
 		for (int i = 1; i < 100; i++) {

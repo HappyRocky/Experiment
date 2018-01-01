@@ -1,11 +1,15 @@
 package whaty;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import utils.DateUtils;
+import whaty.test.MyUtils;
 
 public class CompileTXT {
 	private String commitFilePath; // 线上比对文件先列表
@@ -132,6 +136,7 @@ public class CompileTXT {
 	
 	public static void main(String[] args) {
 		String commitFilePath = "E:\\compare\\commit.txt";
+		commitFilePath = "E:\\a.xls";
 		String preCommitFilePath = "E:\\compare\\precommit.txt";
 		CompileTXT compile = new CompileTXT(commitFilePath, preCommitFilePath);
 		compile.compileTXT();

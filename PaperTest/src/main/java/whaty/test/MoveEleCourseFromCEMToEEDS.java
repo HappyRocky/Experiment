@@ -50,7 +50,7 @@ public class MoveEleCourseFromCEMToEEDS {
 		
 		// 初始化
 		String conditions = "";
-		Set<String> loginIdSet = new HashSet<>();
+		Set<String> loginIdSet = new HashSet<String>();
 		for (Object[] objects : list) {
 			String loginId = MyUtils.valueOf(objects[0]);
 			if (!loginIdSet.contains(loginId)) {
@@ -67,9 +67,9 @@ public class MoveEleCourseFromCEMToEEDS {
 		
 		int num = list.size();
 		int second = num / maxSize + 1;
-		List<String> insertWebtrnSqlList = new ArrayList<>();
-		List<String> insertSpaceSqlList = new ArrayList<>();
-		Set<String> openedLoginIdSet = new HashSet<>(); // 存放开启过班级流程的loginId
+		List<String> insertWebtrnSqlList = new ArrayList<String>();
+		List<String> insertSpaceSqlList = new ArrayList<String>();
+		Set<String> openedLoginIdSet = new HashSet<String>(); // 存放开启过班级流程的loginId
 		System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
 		for (int j = 0; j < second; j++) {
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
@@ -175,7 +175,7 @@ public class MoveEleCourseFromCEMToEEDS {
 		path1 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/insertWebtrn.sql";
 		MyUtils.outputList(insertWebtrnSqlList, path1);
 		path1 = "E:/myJava/yiaiSql/" + DateUtils.getToday() + "/loginIdconditions.txt";
-		List<String> conditionList = new ArrayList<>();
+		List<String> conditionList = new ArrayList<String>();
 		conditionList.add(conditions);
 		MyUtils.outputList(conditionList, path1);
 		System.out.println("输出完毕");
@@ -183,7 +183,7 @@ public class MoveEleCourseFromCEMToEEDS {
 	
 	public void init(String loginIdConditions){
 		// 2017鄂尔多斯班级的课程名和开课id的map
-		courseNamePocIdMap = new HashMap<>();
+		courseNamePocIdMap = new HashMap<String, String>();
 		String sql = "SELECT\n" +
 				"	poc.id,\n" +
 				"	c.`NAME`\n" +
@@ -200,7 +200,7 @@ public class MoveEleCourseFromCEMToEEDS {
 		}
 		
 		// 2017鄂尔多斯班级的loginid和课程名
-		loginIdCourseNameSet = new HashSet<>();
+		loginIdCourseNameSet = new HashSet<String>();
 		sql = "SELECT\n" +
 				"	pt.LOGIN_ID,\n" +
 				"	ptc.`NAME`\n" +
@@ -219,7 +219,7 @@ public class MoveEleCourseFromCEMToEEDS {
 		}
 		
 		// 鄂尔多斯班级学员的学分和完成课程数
-		loginIdScoreMap = new HashMap<>();
+		loginIdScoreMap = new HashMap<String, String[]>();
 		sql = "SELECT\n" +
 				"	pt.LOGIN_ID,\n" +
 				"	pct.ID,\n" +
@@ -248,7 +248,7 @@ public class MoveEleCourseFromCEMToEEDS {
 		}
 		
 		// 课程空间查询loginId对应的studentId
-		loginIdStuIdMap = new HashMap<>();
+		loginIdStuIdMap = new HashMap<String, String>();
 		sql = "select t.LOGIN_ID,t.ID from pe_student t where t.LOGIN_ID in (" + loginIdConditions + ") and t.SITE_CODE='yiai'";
 		list = SshMysqlSpace.queryBySQL(sql);
 		for (Object[] objects : list) {

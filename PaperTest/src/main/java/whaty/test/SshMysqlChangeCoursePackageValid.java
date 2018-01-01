@@ -90,7 +90,7 @@ public class SshMysqlChangeCoursePackageValid {
 		try {
 			// 读取正确的课程包，并输出
 			String path = "E:/myJava/yiaiSql/20170616/correctClassPackageInfo.txt";
-			List<String> correctClassPackageInfoList = new ArrayList<>();
+			List<String> correctClassPackageInfoList = new ArrayList<String>();
 			statement = conn2.createStatement();
 			sql = "select a1 from t1";
 			resultSet = statement.executeQuery(sql);
@@ -105,7 +105,7 @@ public class SshMysqlChangeCoursePackageValid {
 			
 			// 读取某个班级下的课程包，并输出
 			String classId = "ff8080815a27e1a4015a353967cf0037";
-			List<String> classPackageInfoList = new ArrayList<>();
+			List<String> classPackageInfoList = new ArrayList<String>();
 			statement = conn2.createStatement();
 			sql = "SELECT \n" +
 					"	c.`id`,\n" +
@@ -129,8 +129,8 @@ public class SshMysqlChangeCoursePackageValid {
 			System.out.println("新平台班级" + classId + "下应该删除的的课程包数量为" + classPackageInfoList.size());
 			
 			// 按照课程包名称进行处理
-			List<String> eletiveIdList = new ArrayList<>(); // 应该删除的选课id
-			List<String> deleteSqlList = new ArrayList<>(); // sql
+			List<String> eletiveIdList = new ArrayList<String>(); // 应该删除的选课id
+			List<String> deleteSqlList = new ArrayList<String>(); // sql
 			int hasOpenCourse = 0; // 有学员选课的开课数
 			int openCourseCount = 0; // 应该删除的开课数
 			num = classPackageInfoList.size();
@@ -175,7 +175,7 @@ public class SshMysqlChangeCoursePackageValid {
 							"	pte.FK_OPENCOURSE_ID in ('" + conditions + "')";
 					statement = conn2.createStatement();
 					resultSet = statement.executeQuery(sql);
-					List<String> openCourseIdList = new ArrayList<>();
+					List<String> openCourseIdList = new ArrayList<String>();
 					while (resultSet.next()) {
 						String pteId = resultSet.getString(1);
 						String openCourseId = resultSet.getString(2);

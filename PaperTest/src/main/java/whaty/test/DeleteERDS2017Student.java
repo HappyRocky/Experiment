@@ -29,10 +29,10 @@ public class DeleteERDS2017Student {
 		int num = Integer.valueOf(list.get(0)[0] == null ? "0" : list.get(0)[0].toString());
 		int second = num / maxSize + 1;
 		System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
-		loginIdList = new ArrayList<>();
+		loginIdList = new ArrayList<String>();
 		for (int j = 0; j < second; j++) {
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
-			List<String> sqlList = new ArrayList<>();
+			List<String> sqlList = new ArrayList<String>();
 			// 查询出当前申请的信息
 			sql = "SELECT\n" +
 					"	u.ID,\n" +
@@ -49,13 +49,13 @@ public class DeleteERDS2017Student {
 				String ssoUserId = (String) objects[1];
 				String loginId = (String) objects[2];
 				loginIdList.add(loginId);
-				sqlList.add("delete from pr_trainee_class_course_package where fk_trainee_id='" + traineeId + "';");
-				sqlList.add("delete from pe_tch_elective where FK_TRAINEE_ID='" + traineeId + "';");
+//				sqlList.add("delete from pr_trainee_class_course_package where fk_trainee_id='" + traineeId + "';");
+//				sqlList.add("delete from pe_tch_elective where FK_TRAINEE_ID='" + traineeId + "';");
 				sqlList.add("delete from pr_class_trainee where FK_TRAINEE_ID='" + traineeId + "';");
-				sqlList.add("delete from pe_credit_apply where fk_trainee_id='" + traineeId + "';");
-				sqlList.add("delete from pr_student_certificate where Fk_student_id='" + traineeId + "';");
-				sqlList.add("delete from pe_card_number where FK_SSO_USER_ID='" + traineeId + "';");
-				sqlList.add("delete from pr_training_module where fk_trainee_id='" + traineeId + "';");
+//				sqlList.add("delete from pe_credit_apply where fk_trainee_id='" + traineeId + "';");
+//				sqlList.add("delete from pr_student_certificate where Fk_student_id='" + traineeId + "';");
+//				sqlList.add("delete from pe_card_number where FK_SSO_USER_ID='" + traineeId + "';");
+//				sqlList.add("delete from pr_training_module where fk_trainee_id='" + traineeId + "';");
 				sqlList.add("delete from pr_project_trainee where fk_traineeId='" + traineeId + "';");
 //				sqlList.add("delete from pr_site_trainee where FK_TRAINEE_ID='" + traineeId + "';");
 //				sqlList.add("delete from pe_trainee where id='" + traineeId + "';");
@@ -86,7 +86,7 @@ public class DeleteERDS2017Student {
 		System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
 		for (int j = 0; j < second; j++) {
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
-			List<String> sqlList = new ArrayList<>();
+			List<String> sqlList = new ArrayList<String>();
 			// 查询出当前申请的信息
 			sql = "select s.ID,s.FK_SSO_USER_ID from pe_student s where s.LOGIN_ID in  (" + conditions + ") and s.SITE_CODE='yiai' limit " + (j * maxSize) + "," + maxSize;
 			list = SshMysqlSpace.queryBySQL(sql);

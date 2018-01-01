@@ -23,9 +23,9 @@ public class ImportYiaiKouqiangUser {
 	public static List<String> generalInsertSqlList(String path, String classId, String payId, String eleId){
 		
 		List<String> lineList = MyUtils.readFile(path);
-		List<Object[]> excelListList = new ArrayList<>();
-		List<String> resultList = new ArrayList<>();
-		List<String> updateSqlList = new ArrayList<>();
+		List<Object[]> excelListList = new ArrayList<Object[]>();
+		List<String> resultList = new ArrayList<String>();
+		List<String> updateSqlList = new ArrayList<String>();
 		System.out.println("共读取到" + (lineList.size() - 1) + "个学员");
 		Pattern pattern = Pattern.compile("[\u4e00-\u9fa5]");
 		int count = 0;
@@ -135,7 +135,7 @@ public class ImportYiaiKouqiangUser {
 	 * @return
 	 */
 	public static List<String> generalUpdateList(Object[] objects, String[] strs, String classId){
-		List<String> updateSqlList = new ArrayList<>();
+		List<String> updateSqlList = new ArrayList<String>();
 		String ptId = "";
 		// 查询学员id
 		String querySql = "select pt.id from pe_trainee pt where pt.FK_SITE_ID='ff80808155da5b850155dddbec9404c9' and pt.LOGIN_ID='" + objects[0] + "'";
@@ -203,7 +203,7 @@ public class ImportYiaiKouqiangUser {
 	 * @return
 	 */
 	public static List<String> completePay(String loginId, String classId, String payId, String eleId){
-		List<String> updateSqlList = new ArrayList<>();
+		List<String> updateSqlList = new ArrayList<String>();
 		String ptId = "";
 		// 查询学员id、学员班级id
 		String querySql = "select pt.id from pe_trainee pt where pt.FK_SITE_ID='ff80808155da5b850155dddbec9404c9' and pt.LOGIN_ID='" + loginId + "'";

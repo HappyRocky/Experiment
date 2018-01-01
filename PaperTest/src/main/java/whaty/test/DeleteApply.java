@@ -17,7 +17,7 @@ public class DeleteApply {
 	public static void deleteApply(){
 		String loginIdPath = "E:/myJava/yiaiSql/20170608/compareApplyInfo_diff_all.txt";
 		List<String> lineList = MyUtils.readFile(loginIdPath);
-		List<String> loginIdList = new ArrayList<>();
+		List<String> loginIdList = new ArrayList<String>();
 		for (int i = 0; i < lineList.size(); i++) {
 			String line = lineList.get(i);
 			loginIdList.add(line.substring(0,line.indexOf(" ")).trim());

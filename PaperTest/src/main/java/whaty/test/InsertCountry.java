@@ -13,7 +13,7 @@ import utils.DateUtils;
  */
 public class InsertCountry {
 	public void outputSqlList(){
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		String path = "F:\\whaty\\country.txt";
 		List<String> lineList = MyUtils.readFile(path);
 		for (int i = 0; i < lineList.size(); i += 2) {

@@ -32,7 +32,7 @@ public class ChangeCertificateClassByCredit {
 		int second = num / maxSize + 1;
 		System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
 		for (int j = 0; j < second; j++) {
-			List<String> updatePca = new ArrayList<>();
+			List<String> updatePca = new ArrayList<String>();
 			System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
 
 			// 查询出当前申请的信息

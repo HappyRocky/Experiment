@@ -370,7 +370,7 @@ public class AddEEDSCourseWenben {
 	 * @return
 	 */
 	public List<String> generateSpaceSql(String newId, String fullName, String newCode, String subCode, String ch, String en){
-		List<String> resultList = new ArrayList<>();
+		List<String> resultList = new ArrayList<String>();
 		String lan = "3";
 		if (StringUtils.isBlank(ch)) {
 			lan = "2";
@@ -453,7 +453,7 @@ public class AddEEDSCourseWenben {
 	 * @param id5
 	 */
 	public List<String> generateAddSubjectSql(String name2, String id2, String name3, String id3, String name4, String id4, String name5, String id5){
-		List<String> addSubjectSqlList = new ArrayList<>();
+		List<String> addSubjectSqlList = new ArrayList<String>();
 		// 添加二级
 		if (!subjectMap.containsKey(name2)) {
 			String id = MyUtils.uuid();
@@ -550,7 +550,7 @@ public class AddEEDSCourseWenben {
 	}
 	
 	public void init(){
-		courseCodeList = new ArrayList<>();
+		courseCodeList = new ArrayList<String>();
 		// 获取学科
 		subjectMap = new HashMap<String, YiaiSubject>();
 		String sql = "SELECT\n" +
@@ -612,7 +612,7 @@ public class AddEEDSCourseWenben {
 			}
 		}
 		// 获取能力
-		nengliMap = new HashMap<>();
+		nengliMap = new HashMap<String, YiaiSubject>();
 		sql = "select ec.id,ec.name,ec.code from enum_const ec where ec.NAMESPACE='FlagAbility' and ec.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -623,7 +623,7 @@ public class AddEEDSCourseWenben {
 			nengliMap.put(name, yiaiSubject);
 		}
 		// 获取职称
-		zhichengMap = new HashMap<>();
+		zhichengMap = new HashMap<String, YiaiSubject>();
 		sql = "select ec.id,ec.name,ec.code from enum_const ec where ec.NAMESPACE='FlagCareer' and ec.FK_SITE_ID='ff80808155da5b850155dddbec9404c9'";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {
@@ -634,7 +634,7 @@ public class AddEEDSCourseWenben {
 			zhichengMap.put(name, yiaiSubject);
 		}
 		// 获取专家
-		expertMap = new HashMap<>();
+		expertMap = new HashMap<String, Expert>();
 		sql = "SELECT e.ID,e.`NAME`,e.WORKPLACE FROM 	pe_expert e WHERE 	e.FK_SITE_ID = 'ff80808155da5b850155dddbec9404c9' and e.`NAME` != ''";
 		list = SshMysqlWebtrn.queryBySQL(sql);
 		for (Object[] objects : list) {

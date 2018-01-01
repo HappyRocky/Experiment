@@ -22,7 +22,7 @@ public class selectLines {
 	 * @return
 	 */
 	public static List<String> selectLinesByContain(List<String> lineList, List<String> containsStrs){
-		List<String> result = new ArrayList<>();
+		List<String> result = new ArrayList<String>();
 		for (String line : lineList) {
 			for (String str : containsStrs) {
 				if (line.contains(str)) {
@@ -37,7 +37,7 @@ public class selectLines {
 		String path = "E:/myJava/yiaiSql/all.sql";
 		String outPath = "E:/myJava/yiaiSql/all_out.sql";
 		List<String> lineList = MyUtils.readFile(path);
-		List<String> containsStrs = new ArrayList<>();
+		List<String> containsStrs = new ArrayList<String>();
 		containsStrs.add("INSERT INTO `pr_trainee_class_course_package`");
 		containsStrs.add("INSERT INTO pr_student_certificate");
 		List<String> result = selectLinesByContain(lineList, containsStrs);

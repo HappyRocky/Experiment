@@ -48,7 +48,7 @@ public class AddTraineeClassPacBefore2017 {
 			int second = num / maxSize + 1;
 			System.out.println(periodList.get(i) + "~" + periodList.get(i + 1) + " 共查询出" + num + "条数据");
 			System.out.println("总记录共" + num + "条，大于" + maxSize + "条，将分" + second + "次执行");
-			List<String> allSqlList = new ArrayList<>();
+			List<String> allSqlList = new ArrayList<String>();
 			for (int j = 0; j < second; j++) {
 				System.out.println("正在执行第" + j + "次批量计算,共" + second + "次");
 				

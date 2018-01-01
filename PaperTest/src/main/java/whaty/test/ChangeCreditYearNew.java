@@ -29,8 +29,8 @@ public class ChangeCreditYearNew {
 		periodList.add(periodEnd);
 		
 		int maxSize = 100;
-		List<String> updatePca = new ArrayList<>();
-		List<String> updatePtcc = new ArrayList<>();
+		List<String> updatePca = new ArrayList<String>();
+		List<String> updatePtcc = new ArrayList<String>();
 		for (int i = 0; i < periodList.size() - 1; i++) {
 			// 得到申请记录
 			StringBuffer sb = new StringBuffer();

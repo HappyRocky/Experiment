@@ -21,7 +21,7 @@ public class handleCardNumber {
 		String readPath = "E:/myJava/yiaiSql/insertCardNumber_category5.sql";
 		String writePath = "E:/myJava/yiaiSql/insertCardNumber_category__5.sql";
 		List<String> list = MyUtils.readFile(readPath);
-		List<String> newList = new ArrayList<>();
+		List<String> newList = new ArrayList<String>();
 		for (String str : list) {
 			int idx = str.indexOf("VALUES('");
 			if (idx >= 0) {

@@ -27,7 +27,7 @@ public class UpdateXuefen {
 		System.out.println("初始化");
 		init(classId, year);
 		System.out.println("统计学员学分");
-		List<String> updateXuefenList = new ArrayList<>();
+		List<String> updateXuefenList = new ArrayList<String>();
 		String sql = "SELECT\n" +
 				"	pt.id,\n" +
 //				"	sum(ele.result0),\n" +
@@ -43,9 +43,10 @@ public class UpdateXuefen {
 //				"		pt.LOGIN_ID LIKE 'erds@%'\n" +
 //				"		OR pt.LOGIN_ID LIKE 'dltq@%'\n" +
 //				"	)\n" +
-				" pt.LOGIN_ID in ('erds@1836.com','erds@5592.com','erds@3220.com','erds@2069.com','erds@2070.com','erds@2699.com','erds@2667.com') "+
+				" pt.LOGIN_ID in ('erds@3683.com','erds@3684.com','erds@3642.com','erds@4472.com','erds@3174.com','erds@3690.com','erds@3673.com','erds@3633.com','erds@3640.com','erds@3629.com','erds@3711.com','erds@3703.com','erds@3637.com','erds@3647.com','erds@3624.com','erds@3407.com','erds@3634.com','erds@3695.com','erds@3368.com','erds@3682.com','erds@3681.com','erds@4479.com','erds@3631.com','erds@3716.com','erds@3658.com','erds@3717.com','erds@3649.com','erds@3621.com','erds@4489.com','erds@3664.com','erds@4487.com','erds@3676.com','erds@3688.com','erds@2587.com','erds@3678.com','erds@3700.com','erds@3672.com','erds@3671.com','erds@3630.com','erds@4488.com','erds@3489.com','erds@3651.com','erds@3661.com','erds@3692.com','erds@3689.com','erds@3693.com','erds@3710.com','erds@3705.com','erds@3652.com','erds@3657.com','erds@3715.com','erds@3408.com','erds@4478.com','erds@4475.com','erds@3659.com','erds@3625.com','erds@3677.com','erds@3639.com','erds@3249.com','erds@3679.com','erds@3655.com','erds@3680.com','erds@4473.com','erds@4470.com','erds@2533.com','erds@3635.com','erds@3712.com','erds@3686.com','erds@3666.com','erds@3696.com','erds@4481.com','erds@3656.com','erds@3707.com','erds@3665.com','erds@3706.com','erds@3675.com','erds@3713.com','erds@3698.com','erds@3653.com','erds@3668.com','erds@3701.com','erds@3648.com','erds@3650.com','erds@3632.com','erds@2695.com','erds@3573.com','erds@3670.com','erds@3709.com','erds@3339.com','erds@2584.com','erds@3645.com','erds@2350.com','erds@3685.com','erds@3623.com','erds@3694.com','erds@3644.com','erds@3704.com','erds@3718.com','erds@3702.com','erds@3667.com','erds@4474.com','erds@4480.com','erds@4485.com','erds@3708.com','erds@2740.com','erds@2743.com','erds@3626.com','erds@3691.com','erds@3191.com','erds@3146.com','erds@4471.com','erds@4486.com','erds@3252.com','erds@3714.com','erds@3385.com','erds@3646.com','erds@3660.com','erds@4476.com','erds@3638.com','erds@3674.com','erds@3620.com','erds@3687.com','erds@3628.com','erds@3697.com','erds@3641.com','erds@3669.com','erds@4477.com','erds@3622.com','erds@3248.com','erds@3654.com','erds@3643.com','erds@3619.com','erds@3662.com','erds@3699.com','erds@3627.com') "+
 				"AND ele.SCORE = '100.0'\n" +
-				"AND ele.result0 IS NOT NULL\n" +
+//				"AND ele.result0 IS NOT NULL\n" +
+				"AND ele.ELECTIVE_DATE >= '2017-07-01'\n" +
 				"GROUP BY\n" +
 				"	pt.id";
 		List<Object[]> list = SshMysqlWebtrn.queryBySQL(sql);
@@ -70,9 +71,14 @@ public class UpdateXuefen {
 				oldCertXuefen = Integer.valueOf(strs[2]);
 			}
 			
+			// 有证书，则直接将学分置为25
+			if (StringUtils.isNotBlank(certId)) {
+				xuefen = 25;
+			}
+			
 			// 更新学分
 			if (xuefen > oldXuefen) {
-				String updateSql = "UPDATE pr_class_trainee set learnScore = " + xuefen + " where FK_TRAINEE_ID = '" + ptId + "' and FK_TRAINING_CLASS_ID = '" + classId + "' and learnScore < " + xuefen + ";";
+				String updateSql = "UPDATE pr_class_trainee set learnScore = " + xuefen + " where FK_TRAINEE_ID = '" + ptId + "' and FK_TRAINING_CLASS_ID = '" + classId + "' and learnScore < " + xuefen + " limit 1;";
 				updateXuefenList.add(updateSql);
 				oldXuefen = xuefen;
 			}
@@ -84,11 +90,11 @@ public class UpdateXuefen {
 					if (StringUtils.isBlank(insertSql)) {
 						System.out.println("生成证书编号失败：ptId=" + ptId);
 					} else {
-						SshMysqlWebtrn.executeBySQL(insertSql); // 直接执行，后续生成证书编号还需要查询
-//						updateXuefenList.add(insertSql);
+//						SshMysqlWebtrn.executeBySQL(insertSql); // 直接执行，后续生成证书编号还需要查询
+						updateXuefenList.add(insertSql);
 					}
 				} else if (oldCertXuefen != oldXuefen) { // 证书学分不一致
-					String insertSql = "update pr_student_certificate set LEARNSCORE='" + oldXuefen + "',LEARNTIME='" + oldXuefen * 3 + "' where id='" + certId + "';";
+					String insertSql = "update pr_student_certificate set LEARNSCORE='" + oldXuefen + "',LEARNTIME='" + oldXuefen * 3 + "' where id='" + certId + "' limit 1;";
 					updateXuefenList.add(insertSql);
 				} 
 			}
